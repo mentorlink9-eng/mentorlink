@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HomeNavbar from "../components/common/Navbar";
-import "./ContactPage.css";
+import "./contactpage.css";
 
 export default function ContactPage() {
   const navigate = useNavigate();
