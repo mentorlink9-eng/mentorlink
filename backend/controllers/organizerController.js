@@ -1,6 +1,6 @@
 /* eslint-env node */
 /* eslint-disable no-undef */
-const Organizer = require('../models/organizer');
+const Organizer = require('../models/Organizer');
 const { upload, uploadToCloudinary } = require('../middleware/upload');
 
 // @desc    Create or update organizer profile

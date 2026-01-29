@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/User');
 
 // @desc    Toggle connection (connect/disconnect)
 // @route   POST /api/connect/:userId
