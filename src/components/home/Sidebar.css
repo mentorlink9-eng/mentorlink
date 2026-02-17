@@ -18,13 +18,14 @@
   padding: 20px 8px;
 }
 
-/* Toggle button */
+/* Toggle button - WCAG compliant 44x44px */
 .sidebar__toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
   border: 1px solid var(--sidebar-border, #e5e7eb);
   border-radius: 8px;
   background: var(--sidebar-bg, #ffffff);
@@ -53,6 +54,13 @@
 .sidebar--collapsed .sidebar__toggle {
   margin-left: auto;
   margin-right: auto;
+  background: #f0fdf4;
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.sidebar--collapsed .sidebar__toggle svg {
+  stroke: #10b981;
 }
 
 .sidebar__list {
@@ -164,6 +172,16 @@ body.dark-mode .sidebar__toggle {
   background: rgba(55, 65, 81, 0.8);
   border-color: #4b5563;
   color: #e5e7eb;
+}
+
+body.dark-mode .sidebar--collapsed .sidebar__toggle {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+body.dark-mode .sidebar--collapsed .sidebar__toggle svg {
+  stroke: #10b981;
 }
 
 body.dark-mode .sidebar__toggle svg {
@@ -289,13 +307,14 @@ body.dark-mode .sidebar::-webkit-scrollbar-track {
   }
 }
 
-/* On small mobile screens, hide sidebar completely */
+/* On small mobile screens, apply mobile nav styles */
 @media (max-width: 480px) {
-  .sidebar {
+  /* Default sidebar hidden on mobile */
+  .sidebar:not(.sidebar--mobile-nav) {
     display: none;
   }
 
-  /* Show sidebar as bottom navigation on mobile */
+  /* Mobile bottom navigation */
   .sidebar--mobile-nav {
     display: flex;
     position: fixed;
@@ -305,9 +324,11 @@ body.dark-mode .sidebar::-webkit-scrollbar-track {
     top: auto;
     width: 100%;
     height: auto;
+    min-height: 60px;
     flex-direction: row;
     justify-content: space-around;
-    padding: 8px 4px;
+    align-items: center;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
     border-right: none;
     border-top: 1px solid var(--sidebar-border, #e5e7eb);
     z-index: 1000;
@@ -318,42 +339,98 @@ body.dark-mode .sidebar::-webkit-scrollbar-track {
   .sidebar--mobile-nav .sidebar__list {
     flex-direction: row;
     width: 100%;
-    justify-content: space-around;
-    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0;
+    padding: 0 4px;
+  }
+
+  .sidebar--mobile-nav .sidebar__list::-webkit-scrollbar {
+    display: none;
   }
 
   .sidebar--mobile-nav .sidebar__item {
     flex-direction: column;
-    padding: 8px 12px;
-    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    gap: 2px;
     border-radius: 8px;
     min-width: 60px;
+    flex: 0 0 auto;
+    max-width: 72px;
   }
 
   .sidebar--mobile-nav .sidebar__item:hover {
     transform: none;
+    background: transparent;
+  }
+
+  .sidebar--mobile-nav .sidebar__item.active {
+    background: var(--primary-orange-bg, rgba(255, 140, 66, 0.1));
+    color: var(--primary-orange, #FF8C42);
+    box-shadow: none;
+  }
+
+  .sidebar--mobile-nav .sidebar__item.active .sidebar__icon svg {
+    stroke: var(--primary-orange, #FF8C42);
   }
 
   .sidebar--mobile-nav .sidebar__label {
     display: block;
     font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .sidebar--mobile-nav .sidebar__icon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
 
   .sidebar--mobile-nav .sidebar__icon svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
 
   .sidebar--mobile-nav .sidebar__toggle {
     display: none;
   }
 
+  /* Mobile badge styles */
+  .sidebar__badge--mobile {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    background: #ef4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 8px;
+    min-width: 14px;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .sidebar--mobile-nav .sidebar__item {
+    position: relative;
+  }
+
   body.dark-mode .sidebar--mobile-nav {
+    background: rgba(31, 41, 55, 0.98);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+    border-top-color: #374151;
+  }
+
+  body.dark-mode .sidebar--mobile-nav .sidebar__item.active {
+    background: rgba(255, 140, 66, 0.15);
   }
 }

@@ -2,15 +2,15 @@ import React from 'react';
 import './LoadingSpinner.css';
 
 /**
- * Reusable loading spinner component
+ * Reusable loading spinner component - Pulsing Dots Style
  * @param {string} size - 'sm' | 'md' | 'lg' | 'xl' (default: 'md')
  * @param {string} text - Optional loading text
  * @param {boolean} fullPage - Whether to center in full page
  * @param {string} color - Custom color (default: orange)
  */
-const LoadingSpinner = ({ 
-  size = 'md', 
-  text = '', 
+const LoadingSpinner = ({
+  size = 'md',
+  text = '',
   fullPage = false,
   color = '#FF6B35'
 }) => {
@@ -23,10 +23,11 @@ const LoadingSpinner = ({
 
   const spinner = (
     <div className={`loading-spinner ${sizeClasses[size] || 'spinner--md'}`}>
-      <div 
-        className="spinner-circle"
-        style={{ borderTopColor: color }}
-      />
+      <div className="spinner-dots">
+        <div className="spinner-dot" style={{ backgroundColor: color }} />
+        <div className="spinner-dot" style={{ backgroundColor: color }} />
+        <div className="spinner-dot" style={{ backgroundColor: color }} />
+      </div>
       {text && <p className="spinner-text">{text}</p>}
     </div>
   );

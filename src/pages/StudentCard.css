@@ -194,3 +194,54 @@ body.dark-mode .student-tag-pro {
 body.dark-mode .student-card__followers-pro {
   color: #9ca3af;
 }
+
+/* Tablet */
+@media (max-width: 768px) {
+  .student-card-pro {
+    padding: 14px !important;
+  }
+  .student-card__header-pro {
+    gap: 12px;
+  }
+  .student-card__avatar-pro {
+    width: 50px;
+    height: 50px;
+  }
+  .student-card__name-pro {
+    font-size: 15px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .student-card-pro {
+    padding: 12px !important;
+  }
+  .student-card__header-pro {
+    gap: 10px;
+  }
+  .student-card__avatar-pro {
+    width: 44px;
+    height: 44px;
+  }
+  .student-card__name-pro {
+    font-size: 14px !important;
+  }
+  .student-card__bio-pro {
+    font-size: 13px !important;
+  }
+  .student-card__followers-pro {
+    font-size: 11px;
+  }
+  .student-card__subtitle-pro {
+    font-size: 12px;
+  }
+  .student-tag-pro {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .student-btn-pro {
+    height: 36px;
+    font-size: 13px;
+  }
+}

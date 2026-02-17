@@ -513,6 +513,83 @@
   }
 }
 
+/* Mobile - No sidebar, bottom padding for nav */
+@media (max-width: 480px) {
+  .home-main {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 16px 12px;
+    padding-bottom: calc(60px + 24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .home-layout.sidebar-collapsed .home-main,
+  .home-layout.filter-collapsed .home-main,
+  .home-layout.sidebar-collapsed.filter-collapsed .home-main {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .home-layout {
+    padding-top: 64px;
+  }
+
+  .main-header .title {
+    font-size: 22px;
+  }
+
+  .main-header .subtitle {
+    font-size: 13px;
+  }
+
+  .toolbar {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .search {
+    height: 42px;
+    font-size: 14px;
+    padding: 10px 14px 10px 40px;
+  }
+
+  .sort {
+    height: 42px;
+    font-size: 13px;
+    min-width: 100%;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .see-more {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+
+  .no-results,
+  .no-results-box,
+  .error-message,
+  .error-message-box {
+    padding: 40px 16px;
+    min-height: 300px;
+  }
+
+  .no-results h3,
+  .no-results-box h3,
+  .error-message-box h3 {
+    font-size: 18px;
+  }
+
+  .no-results p,
+  .no-results-box p,
+  .error-message-box p {
+    font-size: 14px;
+  }
+}
+
 /* ==================== DARK MODE ==================== */
 
 /* Page Background */

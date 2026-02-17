@@ -1,4 +1,4 @@
-/* ==================== LOADING SPINNER ==================== */
+/* ==================== LOADING SPINNER - Pulsing Dots ==================== */
 .loading-spinner {
   display: flex;
   flex-direction: column;
@@ -7,37 +7,66 @@
   gap: 12px;
 }
 
-.spinner-circle {
+/* Pulsing dots container */
+.spinner-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.spinner-dot {
   border-radius: 50%;
-  border-style: solid;
-  border-color: #e5e7eb;
-  border-top-color: #FF6B35;
-  animation: spinner-rotate 0.8s linear infinite;
+  animation: spinner-pulse 1.4s ease-in-out infinite both;
+}
+
+.spinner-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.spinner-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.spinner-dot:nth-child(3) {
+  animation-delay: 0s;
 }
 
 /* Size variations */
-.spinner--sm .spinner-circle {
-  width: 20px;
-  height: 20px;
-  border-width: 2px;
+.spinner--sm .spinner-dot {
+  width: 6px;
+  height: 6px;
 }
 
-.spinner--md .spinner-circle {
-  width: 32px;
-  height: 32px;
-  border-width: 3px;
+.spinner--sm .spinner-dots {
+  gap: 4px;
 }
 
-.spinner--lg .spinner-circle {
-  width: 48px;
-  height: 48px;
-  border-width: 4px;
+.spinner--md .spinner-dot {
+  width: 10px;
+  height: 10px;
 }
 
-.spinner--xl .spinner-circle {
-  width: 64px;
-  height: 64px;
-  border-width: 5px;
+.spinner--md .spinner-dots {
+  gap: 6px;
+}
+
+.spinner--lg .spinner-dot {
+  width: 14px;
+  height: 14px;
+}
+
+.spinner--lg .spinner-dots {
+  gap: 8px;
+}
+
+.spinner--xl .spinner-dot {
+  width: 18px;
+  height: 18px;
+}
+
+.spinner--xl .spinner-dots {
+  gap: 10px;
 }
 
 .spinner-text {
@@ -47,7 +76,7 @@
   text-align: center;
 }
 
-/* Full page loading */
+/* Full page loading - Better responsive centering */
 .loading-spinner-fullpage {
   position: fixed;
   inset: 0;
@@ -57,27 +86,43 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(4px);
   z-index: 9999;
+  padding: 20px;
 }
 
 /* Animation */
-@keyframes spinner-rotate {
-  0% {
-    transform: rotate(0deg);
+@keyframes spinner-pulse {
+  0%, 80%, 100% {
+    transform: scale(0.4);
+    opacity: 0.4;
   }
-  100% {
-    transform: rotate(360deg);
+  40% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
 /* Dark mode */
-body.dark-mode .spinner-circle {
-  border-color: #374151;
-}
-
 body.dark-mode .spinner-text {
   color: #9ca3af;
 }
 
 body.dark-mode .loading-spinner-fullpage {
   background: rgba(17, 24, 39, 0.9);
+}
+
+/* Responsive spinner sizes */
+@media (max-width: 480px) {
+  .spinner--lg .spinner-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .spinner--xl .spinner-dot {
+    width: 16px;
+    height: 16px;
+  }
+
+  .spinner-text {
+    font-size: 13px;
+  }
 }

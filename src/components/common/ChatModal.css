@@ -62,7 +62,9 @@
   border: none;
   color: #6B7280;
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -354,14 +356,14 @@
   border: none;
   color: white;
   cursor: pointer;
-  padding: 10px;
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: all 0.2s ease;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
 }
 
@@ -471,10 +473,29 @@
   }
 }
 
-/* Landscape mode on mobile */
+/* Landscape mode on mobile - Better vertical space utilization */
 @media (max-width: 768px) and (orientation: landscape) {
   .chat-modal {
-    max-height: 100vh;
+    max-height: 90vh;
+    height: auto;
+  }
+
+  .messages-container {
+    max-height: 50vh;
+  }
+
+  .chat-modal-header,
+  .chat-footer {
+    padding: 8px 12px;
+  }
+
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .chat-input {
+    padding: 8px 12px;
   }
 }
 

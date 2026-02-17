@@ -8,6 +8,7 @@ import Footer from '../components/common/Footer';
 import { mentorAPI, connectionAPI, sessionAPI, userAPI, followAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLayout } from '../contexts/LayoutContext';
+import PageSkeleton from '../components/common/PageSkeleton';
 import './MentorProfile.css';
 
 // Material UI Icons
@@ -55,6 +56,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import DevicesIcon from '@mui/icons-material/Devices';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 
 const MentorProfile = () => {
   const { id } = useParams();
@@ -730,10 +732,7 @@ const MentorProfile = () => {
         <div className={`app-container${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
           <Sidebar />
           <div className="main-content">
-            <div className="loading-spinner">
-              <CircularProgress />
-              <p>Loading mentor profile...</p>
-            </div>
+            <PageSkeleton variant="profile" />
           </div>
         </div>
       </div>
@@ -884,45 +883,55 @@ const MentorProfile = () => {
                   <section className="profile-content-section">
                     <h2>Experience & Expertise</h2>
 
-                    <div className="experience-timeline">
+                    <div className="expertise-grid">
                       {mentor.role && (
-                        <div className="timeline-item">
-                          <div className="timeline-icon">
-                            <BusinessIcon />
+                        <div className="expertise-card">
+                          <div className="expertise-card__icon expertise-card__icon--role">
+                            <BusinessIcon sx={{ fontSize: 20 }} />
                           </div>
-                          <div className="timeline-content">
-                            <h4 className="timeline-role">{mentor.role}</h4>
-                            <p className="timeline-organization">
-                              <BusinessIcon sx={{ fontSize: 16, marginRight: '4px' }} />
-                              Current Position
-                            </p>
-                            <p className="timeline-duration">
-                              {mentor.primaryExperience || 'Experienced Professional'}
-                            </p>
-                            {mentor.user?.about && (
-                              <p className="timeline-description">
-                                {mentor.user.about.substring(0, 150)}...
-                              </p>
-                            )}
+                          <div className="expertise-card__body">
+                            <span className="expertise-card__label">Current Role</span>
+                            <span className="expertise-card__value">{mentor.role}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {mentor.primaryExperience && (
+                        <div className="expertise-card">
+                          <div className="expertise-card__icon expertise-card__icon--exp">
+                            <WorkHistoryIcon sx={{ fontSize: 20 }} />
+                          </div>
+                          <div className="expertise-card__body">
+                            <span className="expertise-card__label">Industry Experience</span>
+                            <span className="expertise-card__value">
+                              {mentor.primaryExperience} {!isNaN(mentor.primaryExperience) ? 'Years' : ''}
+                            </span>
                           </div>
                         </div>
                       )}
 
                       {mentor.mentorshipExperience && (
-                        <div className="timeline-item">
-                          <div className="timeline-icon">
-                            <SchoolIcon />
+                        <div className="expertise-card">
+                          <div className="expertise-card__icon expertise-card__icon--mentor">
+                            <SchoolIcon sx={{ fontSize: 20 }} />
                           </div>
-                          <div className="timeline-content">
-                            <h4 className="timeline-role">Mentorship Experience</h4>
-                            <p className="timeline-organization">
-                              <GroupsIcon sx={{ fontSize: 16, marginRight: '4px' }} />
-                              Helping others grow
-                            </p>
-                            <p className="timeline-duration">{mentor.mentorshipExperience}</p>
-                            <p className="timeline-description">
-                              Actively mentoring students and professionals in their career journey
-                            </p>
+                          <div className="expertise-card__body">
+                            <span className="expertise-card__label">Mentorship Experience</span>
+                            <span className="expertise-card__value">
+                              {mentor.mentorshipExperience} {!isNaN(mentor.mentorshipExperience) ? 'Years' : ''}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {mentor.primaryDomain && (
+                        <div className="expertise-card">
+                          <div className="expertise-card__icon expertise-card__icon--domain">
+                            <CodeIcon sx={{ fontSize: 20 }} />
+                          </div>
+                          <div className="expertise-card__body">
+                            <span className="expertise-card__label">Primary Domain</span>
+                            <span className="expertise-card__value">{mentor.primaryDomain}</span>
                           </div>
                         </div>
                       )}

@@ -236,3 +236,62 @@ body.dark-mode .mentor-btn-follow {
   background: transparent;
   border-color: #ff914d;
 }
+
+/* Tablet */
+@media (max-width: 768px) {
+  .mentor-card-pro {
+    padding: 14px !important;
+  }
+  .mentor-card__header-pro {
+    gap: 12px;
+  }
+  .mentor-card__avatar-pro {
+    width: 50px;
+    height: 50px;
+  }
+  .mentor-card__name-pro {
+    font-size: 15px !important;
+  }
+  .mentor-avatar-badge-pro {
+    font-size: 9px;
+    padding: 1px 5px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .mentor-card-pro {
+    padding: 12px !important;
+  }
+  .mentor-card__header-pro {
+    gap: 10px;
+  }
+  .mentor-card__avatar-pro {
+    width: 44px;
+    height: 44px;
+  }
+  .mentor-card__name-pro {
+    font-size: 14px !important;
+  }
+  .mentor-card__bio-pro {
+    font-size: 13px !important;
+  }
+  .mentor-card__subtitle-pro {
+    font-size: 12px;
+  }
+  .mentor-tag-pro {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .mentor-btn-pro {
+    height: 36px;
+    font-size: 13px;
+  }
+  .mentor-card__actions-pro {
+    gap: 8px;
+  }
+  .mentor-btn-pro svg {
+    width: 14px;
+    height: 14px;
+  }
+}

@@ -654,8 +654,8 @@ body.dark-mode .profile-page-container {
   margin-left: 72px;
 }
 
-/* Responsive - Mobile sidebar always collapsed */
-@media (max-width: 768px) {
+/* Responsive - Tablet sidebar auto-collapsed */
+@media (max-width: 1024px) {
   .app-container .main-content,
   .app-container .admin-content,
   .app-container .messages-main-content,
@@ -667,4 +667,64 @@ body.dark-mode .profile-page-container {
   .flex.min-h-screen .main-content {
     margin-left: 72px;
   }
+}
+
+/* Mobile - No sidebar margin, bottom padding for nav */
+@media (max-width: 480px) {
+  .app-container .main-content,
+  .app-container .admin-content,
+  .app-container .messages-main-content,
+  .app-container .student-profile-main,
+  .app-container .mentor-profile-main,
+  .events-layout .events-main-content,
+  .event-info-layout .event-info-container,
+  .event-info-layout .event-info-main,
+  .flex.min-h-screen .main-content {
+    margin-left: 0;
+    padding-bottom: calc(60px + 20px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Completely disable infinite animations */
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/* Modern keyboard focus indicators */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--primary-orange, #FF8C42);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast focus for interactive elements */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--primary-orange, #FF8C42);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.2);
 }

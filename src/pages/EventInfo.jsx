@@ -5,6 +5,7 @@ import HomeNavbar from "../components/common/HomeNavbar";
 import Sidebar from "../components/home/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
 import { useLayout } from "../contexts/LayoutContext";
+import PageSkeleton from "../components/common/PageSkeleton";
 import "./EventInfo.css";
 
 const EventInfo = () => {
@@ -65,10 +66,7 @@ const EventInfo = () => {
         <div className={`event-info-layout${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
           <Sidebar />
           <div className="event-info-container">
-            <div className="loading-container">
-              <div className="spinner"></div>
-              <p>Loading event details...</p>
-            </div>
+            <PageSkeleton variant="event" />
           </div>
         </div>
       </div>

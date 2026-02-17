@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiMoon, FiSun, FiMessageCircle } from "react-icons/fi";
+import { FiLogOut, FiMoon, FiSun, FiMessageCircle, FiMenu, FiX, FiHome, FiUser, FiCalendar, FiUsers, FiSettings, FiShield } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
 import logoImage from "../../assets/mentorlink-logo.png";
@@ -13,6 +13,21 @@ const HomeNavbar = () => {
   const { unreadCount } = useChat();
   const [dark, setDark] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 480);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close mobile menu when navigating
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [navigate]);
 
   // Load dark mode preference
   useEffect(() => {
@@ -68,17 +83,57 @@ const HomeNavbar = () => {
   // Navigate to home
   const goHome = () => navigate("/home");
 
+  // Mobile menu navigation items
+  const getMobileMenuItems = () => {
+    let profilePath = "student-profile";
+    if (user?.role === "organizer") profilePath = "organizer-profile";
+    else if (user?.role === "mentor") profilePath = "mentor-profile";
+
+    const items = [
+      { icon: <FiHome />, label: "Home", path: "/home" },
+      { icon: <FiMessageCircle />, label: "Messages", path: "/messages", badge: unreadCount },
+      { icon: <FiCalendar />, label: "Events", path: "/events" },
+      { icon: <FiUsers />, label: "Mentors", path: "/mentors" },
+      { icon: <FiUsers />, label: "Students", path: "/students" },
+      { icon: <FiSettings />, label: "Settings", path: "/settings" },
+    ];
+
+    if (user?.role === 'admin') {
+      items.splice(1, 0, { icon: <FiShield />, label: "Admin", path: "/admin" });
+    } else {
+      items.splice(1, 0, { icon: <FiUser />, label: "Profile", path: `/${profilePath}` });
+    }
+
+    return items;
+  };
+
+  const handleMobileNavClick = (path) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="navbar">
       <div className="navbar-container">
-        {/* Left: Logo only */}
-        <div
-          className="navbar-logo"
-          onClick={goHome}
-          role="button"
-          tabIndex={1000}
-        >
-          <img src={logoImage} alt="MentorLink Logo" className="logo-image" />
+        {/* Left: Hamburger (mobile only) + Logo */}
+        <div className="navbar-left">
+          {isMobile && (
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+            </button>
+          )}
+          <div
+            className="navbar-logo"
+            onClick={goHome}
+            role="button"
+            tabIndex={1000}
+          >
+            <img src={logoImage} alt="MentorLink Logo" className="logo-image" />
+          </div>
         </div>
 
         {/* Right: Icons + Profile */}
@@ -133,6 +188,54 @@ const HomeNavbar = () => {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobile && mobileMenuOpen && (
+        <>
+          <div
+            className="mobile-menu-overlay"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <nav className="mobile-menu-drawer">
+            <div className="mobile-menu-header">
+              <span>Menu</span>
+              <button
+                className="mobile-menu-close"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+            <ul className="mobile-menu-list">
+              {getMobileMenuItems().map((item, idx) => (
+                <li key={idx}>
+                  <button
+                    className="mobile-menu-item"
+                    onClick={() => handleMobileNavClick(item.path)}
+                  >
+                    <span className="mobile-menu-icon">{item.icon}</span>
+                    <span className="mobile-menu-label">{item.label}</span>
+                    {item.badge > 0 && (
+                      <span className="mobile-menu-badge">{item.badge}</span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="mobile-menu-footer">
+              <button
+                className="mobile-menu-item mobile-menu-item--danger"
+                onClick={logout}
+              >
+                <span className="mobile-menu-icon"><FiLogOut /></span>
+                <span className="mobile-menu-label">Logout</span>
+              </button>
+            </div>
+          </nav>
+        </>
+      )}
     </header>
   );
 };

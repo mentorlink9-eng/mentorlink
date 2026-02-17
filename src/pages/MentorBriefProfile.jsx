@@ -6,6 +6,7 @@ import Footer from '../components/common/Footer';
 import { mentorAPI, requestAPI, followAPI, connectionAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLayout } from '../contexts/LayoutContext';
+import PageSkeleton from '../components/common/PageSkeleton';
 import './MentorBriefProfile.css';
 
 const MentorBriefProfile = () => {
@@ -260,10 +261,7 @@ const MentorBriefProfile = () => {
                 <div className={`app-container${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
                     <Sidebar />
                     <main className="main-content">
-                        <div className="loading-container">
-                            <div className="loading-spinner"></div>
-                            <p>Loading profile...</p>
-                        </div>
+                        <PageSkeleton variant="profile" />
                     </main>
                 </div>
             </div>

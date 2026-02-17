@@ -7,6 +7,7 @@ import Footer from '../components/common/Footer';
 import { studentAPI, connectionAPI, userAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLayout } from '../contexts/LayoutContext';
+import PageSkeleton from '../components/common/PageSkeleton';
 import './StudentProfile.css';
 
 const StudentProfile = () => {
@@ -355,7 +356,7 @@ const StudentProfile = () => {
         <div className={`app-container${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
           <Sidebar />
           <div className="student-profile-main">
-            <div className="loading-spinner">Loading student profile...</div>
+            <PageSkeleton variant="profile" />
           </div>
         </div>
       </div>

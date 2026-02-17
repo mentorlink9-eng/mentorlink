@@ -94,8 +94,8 @@ const apiRequest = async (endpoint, options = {}) => {
 
 // Public wrapper that ensures backend readiness and retry on transient failures
 const apiRequestSafe = async (endpoint, options = {}) => {
-  // ensure backend is ready (best-effort)
-  // await waitForBackendReady(8000);
+  // ensure backend is ready (best-effort) - 3 second timeout
+  await waitForBackendReady(3000);
   return withRetry(() => apiRequest(endpoint, options));
 };
 

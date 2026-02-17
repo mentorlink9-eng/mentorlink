@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import HomeNavbar from "../components/common/HomeNavbar";
 import Sidebar from "../components/home/Sidebar";
 import Footer from "../components/common/Footer";
 import { useLayout } from "../contexts/LayoutContext";
+import { userAPI } from "../services/api";
 import "./Events.css";
 
 const Events = () => {
@@ -25,6 +25,7 @@ const Events = () => {
     trending: 6,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const locationDropdownRef = useRef(null);
   const categoriesCarouselRef = useRef(null);
@@ -49,9 +50,10 @@ const Events = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
+      setError(null); // Clear previous errors
       try {
-        const res = await axios.get("http://localhost:5000/api/events/get-events");
-        const rawEvents = res.data.events || [];
+        const res = await userAPI.getEvents();
+        const rawEvents = res.events || [];
 
         const formattedEvents = rawEvents.map((e) => {
           const startDate = e.startDate ? new Date(e.startDate) : new Date();
@@ -85,6 +87,7 @@ const Events = () => {
         setTrendingEvents(trending);
       } catch (err) {
         console.error("Error fetching events:", err);
+        setError(err.message || 'Failed to load events. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -313,13 +316,49 @@ const Events = () => {
               </button>
             </div>
 
+            {error && (
+              <div className="error-message" style={{
+                padding: '24px',
+                margin: '24px 0',
+                backgroundColor: '#FEE2E2',
+                border: '2px solid #FCA5A5',
+                borderRadius: '12px',
+                color: '#991B1B',
+                textAlign: 'center',
+              }}>
+                <svg style={{ width: '48px', height: '48px', margin: '0 auto 12px', color: '#DC2626' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600' }}>Failed to Load Events</h3>
+                <p style={{ margin: '0 0 16px 0', fontSize: '14px' }}>{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  style={{
+                    padding: '10px 24px',
+                    backgroundColor: '#DC2626',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#B91C1C'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#DC2626'}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
             {loading ? (
               <div className="loading-spinner">
                 <div className="spinner-dot"></div>
                 <div className="spinner-dot"></div>
                 <div className="spinner-dot"></div>
               </div>
-            ) : (
+            ) : !error && (
               <>
                 <div className="events-grid">
                   {filteredPopular.slice(0, loadedCounts.popular).map((event) => (

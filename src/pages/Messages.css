@@ -841,8 +841,14 @@ body.dark-mode .chat-message-file:hover {
   }
 
   .messages-layout {
+    margin-left: 0;
     padding: 8px;
-    height: calc(100vh - 56px);
+    padding-bottom: calc(60px + 12px + env(safe-area-inset-bottom, 0px));
+    height: calc(100vh - 56px - 60px - env(safe-area-inset-bottom, 0px));
+  }
+
+  .sidebar-collapsed .messages-layout {
+    margin-left: 0;
   }
 
   .messages-left-panel {

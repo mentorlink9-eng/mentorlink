@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import HomeNavbar from '../components/common/HomeNavbar';
 import { requestAPI } from '../services/api';
+import PageSkeleton from '../components/common/PageSkeleton';
 import './ConnectionRequestView.css';
 
 const ConnectionRequestView = () => {
@@ -34,8 +35,8 @@ const ConnectionRequestView = () => {
     return (
       <div className="connection-request-view-page">
         <HomeNavbar />
-        <div className="loading-container">
-          <div className="loading-spinner">Loading request...</div>
+        <div style={{ padding: '24px' }}>
+          <PageSkeleton variant="request" />
         </div>
       </div>
     );

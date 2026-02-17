@@ -591,10 +591,16 @@
 /* Loading States */
 .loading-spinner,
 .error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 1.5rem;
   font-size: 0.9rem;
   color: var(--text-secondary);
+  min-height: 60vh;
+  width: 100%;
 }
 
 /* Responsive */
@@ -665,7 +671,11 @@
 
   .student-profile-main {
     margin-left: 0;
-    padding-bottom: 70px; /* Account for bottom nav */
+    padding-bottom: calc(60px + 24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sidebar-collapsed .student-profile-main {
+    margin-left: 0;
   }
 
   .profile-content-section {

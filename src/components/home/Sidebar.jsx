@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiHome, FiUser, FiCalendar, FiUsers, FiSettings, FiMessageSquare, FiShield, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
@@ -12,6 +12,18 @@ const Sidebar = () => {
   const { user } = useAuth();
   const { unreadCount } = useChat();
   const { sidebarCollapsed, toggleSidebar } = useLayout();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 480);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Determine which tab is active
   const path = location.pathname;
@@ -59,35 +71,50 @@ const Sidebar = () => {
     items.splice(1, 0, { key: "profile", icon: <FiUser />, label: "Profile", path: profilePath });
   }
 
+  // Build class names based on state
+  const sidebarClasses = [
+    'sidebar',
+    sidebarCollapsed && !isMobile ? 'sidebar--collapsed' : '',
+    isMobile ? 'sidebar--mobile-nav' : ''
+  ].filter(Boolean).join(' ');
+
+  // Show all items - mobile bottom nav is horizontally scrollable
+  const mobileItems = items;
+
   return (
-    <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
-      <button 
-        className="sidebar__toggle" 
-        onClick={toggleSidebar}
-        title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
-      </button>
+    <aside className={sidebarClasses}>
+      {!isMobile && (
+        <button
+          className="sidebar__toggle"
+          onClick={toggleSidebar}
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
+        </button>
+      )}
       <ul className="sidebar__list">
-        {items.map((item) => (
+        {mobileItems.map((item) => (
           <li
             key={item.key}
             className={`sidebar__item ${active === item.key ? "active" : ""}`}
             onClick={() => handleNavigation(item.path)}
-            title={sidebarCollapsed ? item.label : ""}
+            title={sidebarCollapsed && !isMobile ? item.label : ""}
           >
             <span className="sidebar__icon">{item.icon}</span>
-            {!sidebarCollapsed && (
+            {(!sidebarCollapsed || isMobile) && (
               <span className="sidebar__label">
                 {item.label}
-                {item.badge > 0 && (
+                {item.badge > 0 && !isMobile && (
                   <span className="sidebar__badge">{item.badge}</span>
                 )}
               </span>
             )}
-            {sidebarCollapsed && item.badge > 0 && (
+            {sidebarCollapsed && !isMobile && item.badge > 0 && (
               <span className="sidebar__badge sidebar__badge--collapsed">{item.badge}</span>
+            )}
+            {isMobile && item.badge > 0 && (
+              <span className="sidebar__badge sidebar__badge--mobile">{item.badge}</span>
             )}
           </li>
         ))}

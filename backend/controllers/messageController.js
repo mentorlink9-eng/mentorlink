@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const User = require('../models/User');
@@ -107,48 +108,66 @@ const getConversations = async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // First, get all accepted mentorship connections for this user (single query)
+    const acceptedConnections = await MentorshipRequest.find({
+      $or: [
+        { mentor: userId, status: 'accepted' },
+        { student: userId, status: 'accepted' }
+      ]
+    }).lean();
+
+    // Build set of connected user IDs
+    const connectedUserIds = new Set();
+    acceptedConnections.forEach(conn => {
+      const otherUserId = conn.mentor.toString() === userId.toString()
+        ? conn.student.toString()
+        : conn.mentor.toString();
+      connectedUserIds.add(otherUserId);
+    });
+
+    // If no connections, return empty
+    if (connectedUserIds.size === 0) {
+      return res.json({
+        conversations: [],
+        count: 0,
+      });
+    }
+
+    // Get conversations only with connected users (optimized query)
     const conversations = await Conversation.find({
-      participants: userId,
-      'isArchived': { $ne: { [userId.toString()]: true } },
+      participants: {
+        $all: [userId],
+        $elemMatch: { $in: Array.from(connectedUserIds).map(id => new mongoose.Types.ObjectId(id)) }
+      }
     })
       .populate('participants', 'name email profileImage role')
       .populate('lastMessage.sender', 'name')
       .sort({ lastMessageAt: -1 })
-      .limit(50);
+      .limit(50)
+      .lean();
 
-    // Filter conversations to only include those with accepted mentorship connections
-    const filteredConversations = await Promise.all(
-      conversations.map(async (conv) => {
-        const otherParticipant = conv.participants.find(
-          p => p._id.toString() !== userId.toString()
-        );
+    // Format conversations (no additional DB queries needed)
+    const formattedConversations = conversations.map(conv => {
+      const otherParticipant = conv.participants.find(
+        p => p._id.toString() !== userId.toString()
+      );
 
-        // Check if there's an accepted mentorship request
-        const acceptedRequest = await MentorshipRequest.findOne({
-          $or: [
-            { mentor: userId, student: otherParticipant._id, status: 'accepted' },
-            { mentor: otherParticipant._id, student: userId, status: 'accepted' }
-          ]
-        });
-
-        if (acceptedRequest) {
-          return {
-            _id: conv._id,
-            conversationId: Conversation.generateConversationId(userId, otherParticipant._id),
-            participant: otherParticipant,
-            lastMessage: conv.lastMessage,
-            lastMessageAt: conv.lastMessageAt,
-            unreadCount: conv.unreadCount.get(userId.toString()) || 0,
-            createdAt: conv.createdAt,
-            updatedAt: conv.updatedAt,
-          };
-        }
+      // Only include if participant is in connected set
+      if (!otherParticipant || !connectedUserIds.has(otherParticipant._id.toString())) {
         return null;
-      })
-    );
+      }
 
-    // Remove null values (conversations without accepted mentorship)
-    const formattedConversations = filteredConversations.filter(conv => conv !== null);
+      return {
+        _id: conv._id,
+        conversationId: Conversation.generateConversationId(userId, otherParticipant._id),
+        participant: otherParticipant,
+        lastMessage: conv.lastMessage,
+        lastMessageAt: conv.lastMessageAt,
+        unreadCount: conv.unreadCount ? (conv.unreadCount[userId.toString()] || 0) : 0,
+        createdAt: conv.createdAt,
+        updatedAt: conv.updatedAt,
+      };
+    }).filter(conv => conv !== null);
 
     res.json({
       conversations: formattedConversations,

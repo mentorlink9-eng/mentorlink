@@ -14,8 +14,8 @@ const isAdmin = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Get user from database
-    const user = await User.findById(decoded._id).select('-password');
+    // Get user from database (JWT payload uses 'id', not '_id')
+    const user = await User.findById(decoded.id).select('-password');
 
     if (!user) {
       return res.status(401).json({ message: 'User not found, authorization denied' });

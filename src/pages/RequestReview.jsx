@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import HomeNavbar from '../components/common/HomeNavbar';
 import Sidebar from '../components/home/Sidebar';
 import { useLayout } from '../contexts/LayoutContext';
+import PageSkeleton from '../components/common/PageSkeleton';
 import './RequestReview.css';
 
 const RequestReview = () => {
@@ -101,7 +102,7 @@ const RequestReview = () => {
         <div className={`app-container${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
           <Sidebar />
           <div className="main-content">
-            <div className="loading-spinner">Loading request details...</div>
+            <PageSkeleton variant="request" />
           </div>
         </div>
       </div>

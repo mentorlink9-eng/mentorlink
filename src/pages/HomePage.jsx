@@ -1,15 +1,15 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import HomeNavbar from '../components/common/HomeNavbar';
 import Sidebar from '../components/home/Sidebar';
 import FilterPanel from '../components/home/FilterPanel';
 import MentorCard from '../components/home/MentorCard';
 import StudentCard from './StudentCard';
 import Footer from '../components/common/Footer';
-import { mentorAPI, studentAPI } from '../services/api';
+import { mentorAPI, studentAPI, organizerAPI, userAPI } from '../services/api';
 import { useLayout } from '../contexts/LayoutContext';
 import { useAuth } from '../contexts/AuthContext';
+import { FiUsers, FiBookOpen, FiRadio, FiCalendar, FiMapPin, FiTarget, FiStar, FiMessageCircle, FiBriefcase, FiSunrise, FiSun, FiSunset, FiMoon } from 'react-icons/fi';
 import './HomePage.css';
 
 // Motivational quotes for rotating display
@@ -47,10 +47,10 @@ const STUDENT_QUOTES = [
 // Time-based greetings
 const getGreeting = () => {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return { text: 'Good Morning', emoji: '🌅' };
-  if (hour >= 12 && hour < 17) return { text: 'Good Afternoon', emoji: '☀️' };
-  if (hour >= 17 && hour < 21) return { text: 'Good Evening', emoji: '🌆' };
-  return { text: 'Welcome Back', emoji: '🌙' };
+  if (hour >= 5 && hour < 12) return { text: 'Good Morning', icon: <FiSunrise size={24} /> };
+  if (hour >= 12 && hour < 17) return { text: 'Good Afternoon', icon: <FiSun size={24} /> };
+  if (hour >= 17 && hour < 21) return { text: 'Good Evening', icon: <FiSunset size={24} /> };
+  return { text: 'Welcome Back', icon: <FiMoon size={24} /> };
 };
 
 const HomePage = () => {
@@ -102,19 +102,17 @@ const HomePage = () => {
       }
 
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
         let response;
 
         if (user.role === 'student') {
-          response = await axios.get('http://localhost:5000/api/students/me', { headers });
-          setUserName(response.data.student?.name || response.data.name || '');
+          response = await studentAPI.getProfile();
+          setUserName(response.student?.name || response.name || '');
         } else if (user.role === 'mentor') {
-          response = await axios.get('http://localhost:5000/api/mentors/me', { headers });
-          setUserName(response.data.mentor?.name || response.data.name || '');
+          response = await mentorAPI.getProfile();
+          setUserName(response.mentor?.name || response.name || '');
         } else if (user.role === 'organizer') {
-          response = await axios.get('http://localhost:5000/api/organizers/me', { headers });
-          setUserName(response.data.organizer?.name || response.data.name || '');
+          response = await organizerAPI.getProfile();
+          setUserName(response.organizer?.name || response.name || '');
         } else {
           setUserName('');
         }
@@ -221,8 +219,8 @@ const HomePage = () => {
     const fetchEvents = async () => {
       try {
         setEventsLoading(true);
-        const res = await axios.get('http://localhost:5000/api/events/get-events');
-        const rawEvents = res.data.events || [];
+        const res = await userAPI.getEvents();
+        const rawEvents = res.events || [];
         const now = new Date();
 
         const formattedEvents = rawEvents.map((e) => {
@@ -329,7 +327,7 @@ const HomePage = () => {
           {/* WELCOME + EVENTS - Compact Header */}
           <div className="page-hero">
             <div className="hero-greeting">
-              <span className="hero-emoji">{greeting.emoji}</span>
+              <span className="hero-emoji">{greeting.icon}</span>
               <span className="hero-text">
                 {greeting.text}{userName && !profileLoading ? `, ${userName}` : ''}!
               </span>
@@ -345,7 +343,7 @@ const HomePage = () => {
             {!eventsLoading && ongoingEvents.length > 0 && (
               <div className="events-block events-block--live">
                 <div className="events-block__header events-block__header--center">
-                  <span className="badge badge--live">🔴 LIVE</span>
+                  <span className="badge badge--live"><FiRadio className="icon-live" /> LIVE</span>
                   <span className="events-block__title">Happening Now</span>
                 </div>
                 <div className="banner-container">
@@ -361,14 +359,14 @@ const HomePage = () => {
                       </div>
                       <div className="banner-card__info">
                         <h4>{event.title}</h4>
-                        <p>📍 {event.location} • {event.eventMode}</p>
+                        <p><FiMapPin size={14} /> {event.location} • {event.eventMode}</p>
                       </div>
                     </div>
                   ))}
                   {/* Stay Tuned Card */}
                   <div className={`banner-card banner-stay-tuned ${activeLiveIndex === ongoingEvents.length ? 'banner-card--active' : 'banner-card--hidden'}`}>
                     <div className="banner-stay-tuned__content">
-                      <span>🎯</span>
+                      <span><FiTarget size={20} /></span>
                       <p>Stay tuned for more live events!</p>
                     </div>
                   </div>
@@ -391,7 +389,7 @@ const HomePage = () => {
             {!eventsLoading && (
               <div className="events-block events-block--upcoming">
                 <div className="events-block__header events-block__header--center">
-                  <span className="badge badge--upcoming">📅 UPCOMING</span>
+                  <span className="badge badge--upcoming"><FiCalendar className="icon-upcoming" /> UPCOMING</span>
                   <span className="events-block__title">Don't Miss Out</span>
                   <button className="see-all-btn" onClick={() => navigate('/events')}>See all →</button>
                 </div>
@@ -412,14 +410,14 @@ const HomePage = () => {
                           </div>
                           <div className="banner-card__info">
                             <h4>{event.title}</h4>
-                            <p>📍 {event.location} • {event.eventMode}</p>
+                            <p><FiMapPin size={14} /> {event.location} • {event.eventMode}</p>
                           </div>
                         </div>
                       ))}
                       {/* Stay Tuned Card */}
                       <div className={`banner-card banner-stay-tuned banner-stay-tuned--upcoming ${activeUpcomingIndex === upcomingEvents.length ? 'banner-card--active' : 'banner-card--hidden'}`}>
                         <div className="banner-stay-tuned__content">
-                          <span>✨</span>
+                          <span><FiStar size={20} /></span>
                           <p>Stay tuned for more upcoming events!</p>
                         </div>
                       </div>
@@ -439,7 +437,7 @@ const HomePage = () => {
                 ) : (
                   <div className="banner-stay-tuned banner-stay-tuned--upcoming banner-stay-tuned--only">
                     <div className="banner-stay-tuned__content">
-                      <span>✨</span>
+                      <span><FiStar size={20} /></span>
                       <p>No upcoming events yet. Stay tuned!</p>
                     </div>
                   </div>
@@ -452,7 +450,7 @@ const HomePage = () => {
           {(mentorsLoading || mentors.length > 0) && (
             <div className="content-block content-block--mentors">
               <div className="content-block__header content-block__header--center">
-                <h3>👨‍🏫 Mentors for You</h3>
+                <h3><FiUsers size={20} /> Mentors for You</h3>
                 <p className={`section-quote ${mentorQuoteFading ? 'section-quote--fading' : ''}`}>
                   "{MENTOR_QUOTES[mentorQuoteIndex]}"
                 </p>
@@ -476,7 +474,7 @@ const HomePage = () => {
           {(studentsLoading || students.length > 0) && (
             <div className="content-block content-block--students">
               <div className="content-block__header content-block__header--center">
-                <h3>🎓 Active Learners</h3>
+                <h3><FiBookOpen size={20} /> Active Learners</h3>
                 <p className={`section-quote ${studentQuoteFading ? 'section-quote--fading' : ''}`}>
                   "{STUDENT_QUOTES[studentQuoteIndex]}"
                 </p>
@@ -499,7 +497,7 @@ const HomePage = () => {
           {/* TESTIMONIALS SECTION - Beautiful Infinite Scroll */}
           <div className="testimonials-section">
             <div className="testimonials-header">
-              <span className="testimonials-badge">💬 TESTIMONIALS</span>
+              <span className="testimonials-badge"><FiMessageCircle size={14} /> TESTIMONIALS</span>
               <h3 className="testimonials-title">What Our Community Says</h3>
               <p className="testimonials-subtitle">Real stories from real people who transformed their careers</p>
             </div>
@@ -517,11 +515,11 @@ const HomePage = () => {
                       <div className="testimonial-card-new__info">
                         <span className="testimonial-card-new__name">{t.author}</span>
                         <span className="testimonial-card-new__company">
-                          <span className="company-icon">🏢</span> {t.company}
+                          <FiBriefcase size={12} /> {t.company}
                         </span>
                       </div>
                     </div>
-                    <div className="testimonial-card-new__stars">⭐⭐⭐⭐⭐</div>
+                    <div className="testimonial-card-new__stars">{[...Array(5)].map((_, i) => <FiStar key={i} size={12} />)}</div>
                   </div>
                 ))}
                 {/* Duplicate for seamless loop */}
@@ -534,11 +532,11 @@ const HomePage = () => {
                       <div className="testimonial-card-new__info">
                         <span className="testimonial-card-new__name">{t.author}</span>
                         <span className="testimonial-card-new__company">
-                          <span className="company-icon">🏢</span> {t.company}
+                          <FiBriefcase size={12} /> {t.company}
                         </span>
                       </div>
                     </div>
-                    <div className="testimonial-card-new__stars">⭐⭐⭐⭐⭐</div>
+                    <div className="testimonial-card-new__stars">{[...Array(5)].map((_, i) => <FiStar key={i} size={12} />)}</div>
                   </div>
                 ))}
               </div>
