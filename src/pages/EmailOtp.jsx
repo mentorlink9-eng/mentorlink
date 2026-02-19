@@ -115,14 +115,19 @@ const EmailOtp = () => {
     setMessage({ type: 'loading', text: 'Resending OTP...' });
 
     try {
-      // Add your resend OTP API call here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
+      const email = localStorage.getItem('signupEmail');
+      if (!email) {
+        setMessage({ type: 'error', text: 'Session expired. Please sign up again.' });
+        setTimeout(() => navigate('/signup'), 2000);
+        return;
+      }
+      await userAPI.resendOTP({ email });
       setTimer(30);
       setOtp(new Array(6).fill(''));
-      setMessage({ type: 'success', text: 'OTP resent successfully!' });
+      setMessage({ type: 'success', text: 'OTP resent successfully! Check your email.' });
       inputRefs.current[0]?.focus();
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to resend OTP. Please try again.' });
+      setMessage({ type: 'error', text: err?.message || 'Failed to resend OTP. Please try again.' });
     } finally {
       setIsResending(false);
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);

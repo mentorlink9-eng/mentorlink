@@ -103,7 +103,8 @@ const sendOTP = async (email, otp) => {
     const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
   } catch (err) {
-    // Log only error message without exposing credentials or sensitive data
+    // Clear cached transporter so next attempt creates a fresh one
+    cachedTransporter = null;
     // eslint-disable-next-line no-console
     console.error('Failed to send OTP email:', err?.message || 'Unknown error');
     throw new Error('Failed to send verification email. Please try again later.');
@@ -152,11 +153,20 @@ const registerUser = async (req, res) => {
       user.otpExpires = Date.now() + 10 * 60 * 1000;
       await fileDbSaveUser(user);
 
-      await sendOTP(email, otp);
+      let emailSent = true;
+      try {
+        await sendOTP(email, otp);
+      } catch (emailErr) {
+        console.error('OTP email failed during signup:', emailErr?.message);
+        emailSent = false;
+      }
 
       return res.status(201).json({
-        message: 'User registered successfully. Please verify your email with OTP.',
+        message: emailSent
+          ? 'User registered successfully. Please verify your email with OTP.'
+          : 'User registered successfully. OTP email failed - please use Resend OTP.',
         userId: user.id,
+        emailSent,
       });
     }
 
@@ -187,11 +197,21 @@ const registerUser = async (req, res) => {
     user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    await sendOTP(email, otp);
+    // Send OTP email in background - don't block signup response
+    let emailSent = true;
+    try {
+      await sendOTP(email, otp);
+    } catch (emailErr) {
+      console.error('OTP email failed during signup:', emailErr?.message);
+      emailSent = false;
+    }
 
     return res.status(201).json({
-      message: 'User registered successfully. Please verify your email with OTP.',
+      message: emailSent
+        ? 'User registered successfully. Please verify your email with OTP.'
+        : 'User registered successfully. OTP email failed - please use Resend OTP.',
       userId: user._id,
+      emailSent,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -255,6 +275,51 @@ const verifyOTP = async (req, res) => {
         role: user.role,
       },
     });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Resend OTP for signup verification
+// @route   POST /api/users/resend-otp
+// @access  Public
+const resendOTP = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    if (USE_FILE_DB) {
+      const user = fileDbGetUserByEmail(email);
+      if (!user) {
+        return res.status(400).json({ message: 'User not found. Please sign up first.' });
+      }
+      if (user.isVerified) {
+        return res.status(400).json({ message: 'Email already verified. Please login.' });
+      }
+      const otp = generateOTP();
+      user.otp = otp;
+      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      user.updatedAt = new Date().toISOString();
+      await fileDbSaveUser(user);
+      await sendOTP(email, otp);
+      return res.json({ message: 'OTP resent to your email' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found. Please sign up first.' });
+    }
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'Email already verified. Please login.' });
+    }
+
+    const otp = generateOTP();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    await sendOTP(email, otp);
+
+    return res.json({ message: 'OTP resent to your email' });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -500,6 +565,7 @@ const softDeleteAccount = async (req, res) => {
 module.exports = {
   registerUser,
   verifyOTP,
+  resendOTP,
   authUser,
   sendLoginOTP,
   loginWithOTP,

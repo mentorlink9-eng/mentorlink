@@ -3,6 +3,7 @@ const { body } = require('express-validator');
 const {
   registerUser,
   verifyOTP,
+  resendOTP,
   authUser,
   sendLoginOTP,
   loginWithOTP,
@@ -31,6 +32,9 @@ router.post(
 
 // @route   POST /api/users/verify-otp
 router.post('/verify-otp', verifyOTP);
+
+// @route   POST /api/users/resend-otp
+router.post('/resend-otp', resendOTP);
 
 // @route   POST /api/users/login
 router.post('/login', authUser);

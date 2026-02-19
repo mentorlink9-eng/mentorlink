@@ -116,6 +116,11 @@ export const userAPI = {
     body: JSON.stringify(data),
   }),
 
+  resendOTP: (data) => apiRequestSafe('/users/resend-otp', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
   login: (credentials) => apiRequestSafe('/users/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
