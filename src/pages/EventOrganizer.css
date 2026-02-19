@@ -1,27 +1,6 @@
 /* ============================================
-   MINIMAL FUTURISTIC EVENT ORGANIZER FORM
+   EVENT ORGANIZER FORM - Clean & Responsive
    ============================================ */
-
-/* CSS Variables - Matching Signup Page */
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --primary-color: #667eea;
-  --primary-hover: #5568d3;
-  --text-color: #1a202c;
-  --text-light: #718096;
-  --border-color: #e2e8f0;
-  --bg-color: #f7fafc;
-  --white: #ffffff;
-  --error: #ef4444;
-  --success: #48bb78;
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 /* ============================================
    ANIMATED BACKGROUND
@@ -31,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -41,7 +20,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animated Background Circles */
 .organizer-bg-decoration {
   position: fixed;
   top: 0;
@@ -57,7 +35,7 @@
   position: absolute;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
-  animation: float 20s infinite ease-in-out;
+  animation: organizerFloat 20s infinite ease-in-out;
 }
 
 .organizer-circle-1 {
@@ -84,7 +62,7 @@
   animation-delay: 10s;
 }
 
-@keyframes float {
+@keyframes organizerFloat {
   0%, 100% {
     transform: translateY(0) scale(1);
     opacity: 0.3;
@@ -96,21 +74,21 @@
 }
 
 /* ============================================
-   MAIN CONTAINER - Minimal & Clean
+   MAIN CONTAINER
    ============================================ */
 .organizer-form-container {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 600px;
-  background: var(--white);
+  background: #ffffff;
   border-radius: 24px;
   padding: 2.5rem;
-  box-shadow: var(--shadow-xl);
-  animation: slideDown 0.6s ease-out;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+  animation: organizerSlideDown 0.6s ease-out;
 }
 
-@keyframes slideDown {
+@keyframes organizerSlideDown {
   from {
     opacity: 0;
     transform: translateY(-30px);
@@ -122,14 +100,14 @@
 }
 
 /* ============================================
-   HEADER - Minimal Title
+   HEADER
    ============================================ */
 .organizer-title {
   text-align: center;
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  color: var(--text-color);
+  color: #1a202c;
   position: relative;
   padding-bottom: 1rem;
 }
@@ -142,12 +120,12 @@
   transform: translateX(-50%);
   width: 60px;
   height: 4px;
-  background: var(--primary-color);
+  background: #667eea;
   border-radius: 2px;
 }
 
 /* ============================================
-   FORM - Minimal & Clean
+   FORM
    ============================================ */
 .organizer-form {
   display: flex;
@@ -155,37 +133,39 @@
   gap: 1.5rem;
 }
 
-.form-group {
+.organizer-form .form-group {
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-.form-group label {
+.organizer-form .form-group label {
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1a202c;
+  letter-spacing: 0.01em;
 }
 
 /* ============================================
-   INPUT & SELECT FIELDS - Clean Design
+   INPUT, SELECT & TEXTAREA
    ============================================ */
-.form-group input,
-.form-group select {
+.organizer-form .form-group input[type="text"],
+.organizer-form .form-group select,
+.organizer-form .form-group textarea {
   width: 100%;
   padding: 0.85rem 1rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-size: 0.95rem;
-  color: var(--text-color);
+  color: #1a202c;
   transition: all 0.3s ease;
-  background-color: var(--white);
+  background-color: #ffffff;
   outline: none;
   font-family: inherit;
 }
 
-.form-group select {
+.organizer-form .form-group select {
   appearance: none;
   cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23718096' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -194,97 +174,55 @@
   padding-right: 2.5rem;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  border-color: var(--primary-color);
+.organizer-form .form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.organizer-form .form-group input[type="text"]:focus,
+.organizer-form .form-group select:focus,
+.organizer-form .form-group textarea:focus {
+  border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
-.form-group input::placeholder {
+.organizer-form .form-group input::placeholder,
+.organizer-form .form-group textarea::placeholder {
   color: #9ca3af;
 }
 
 /* ============================================
-   TAGS - Minimal Pills
+   CHECKBOX GROUP
    ============================================ */
-.selected-domains {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 50px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  animation: tag-pop 0.3s ease-out;
-}
-
-@keyframes tag-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.remove-btn {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: 1.25rem;
-  font-weight: 700;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.2s ease;
-}
-
-.remove-btn:hover {
-  color: var(--error);
-}
-
-/* ============================================
-   CHECKBOXES & RADIOS - Clean & Minimal
-   ============================================ */
-.checkbox-group {
+.organizer-form .checkbox-group {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.75rem;
 }
 
-.checkbox-group label {
+.organizer-form .checkbox-group label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.95rem;
-  background: var(--white);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #ffffff;
+  margin-bottom: 0;
 }
 
-.checkbox-group label:hover {
-  border-color: var(--primary-color);
+.organizer-form .checkbox-group label:hover {
+  border-color: #667eea;
   background: rgba(102, 126, 234, 0.02);
 }
 
-.checkbox-group input[type="checkbox"],
-.checkbox-group input[type="radio"] {
-  accent-color: var(--primary-color);
+.organizer-form .checkbox-group input[type="checkbox"],
+.organizer-form .checkbox-group input[type="radio"] {
+  accent-color: #667eea;
   cursor: pointer;
   width: 18px;
   height: 18px;
@@ -292,23 +230,17 @@
   flex-shrink: 0;
 }
 
-.checkbox-group input[type="checkbox"]:checked + *,
-.checkbox-group input[type="radio"]:checked ~ * {
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
-.checkbox-group label:has(input:checked) {
-  border-color: var(--primary-color);
+.organizer-form .checkbox-group label:has(input:checked) {
+  border-color: #667eea;
   background: rgba(102, 126, 234, 0.05);
 }
 
 /* ============================================
-   SUBMIT BUTTON - Minimal Gradient
+   SUBMIT BUTTON
    ============================================ */
-.submit-btn {
-  background: var(--primary-color);
-  color: var(--white);
+.organizer-form .submit-btn {
+  background: #667eea;
+  color: #ffffff;
   border: none;
   padding: 1rem;
   border-radius: 12px;
@@ -321,26 +253,26 @@
   font-family: inherit;
 }
 
-.submit-btn:hover {
-  background: var(--primary-hover);
+.organizer-form .submit-btn:hover {
+  background: #5568d3;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
-.submit-btn:active {
+.organizer-form .submit-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 /* ============================================
-   SUCCESS TOAST - Minimal
+   SUCCESS TOAST
    ============================================ */
-.success-toast {
+.organizer-form-page .success-toast {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: var(--success);
-  color: var(--white);
+  background: #48bb78;
+  color: #ffffff;
   padding: 1rem 1.25rem;
   border-radius: 12px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
@@ -348,11 +280,11 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  animation: toast-slide 0.3s ease-out;
+  animation: organizerToastSlide 0.3s ease-out;
   font-weight: 500;
 }
 
-@keyframes toast-slide {
+@keyframes organizerToastSlide {
   from {
     opacity: 0;
     transform: translateX(100px);
@@ -363,15 +295,13 @@
   }
 }
 
-.toast-icon {
-  width: 20px;
-  height: 20px;
+.organizer-form-page .toast-icon {
   font-size: 1.25rem;
   flex-shrink: 0;
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   RESPONSIVE
    ============================================ */
 @media (max-width: 640px) {
   .organizer-form-page {
@@ -384,7 +314,7 @@
   }
 
   .organizer-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     margin-bottom: 1.75rem;
   }
 
@@ -392,28 +322,29 @@
     gap: 1.25rem;
   }
 
-  .checkbox-group {
+  .organizer-form .checkbox-group {
     grid-template-columns: 1fr;
     gap: 0.625rem;
   }
 
-  .checkbox-group label {
+  .organizer-form .checkbox-group label {
     padding: 0.65rem 0.875rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
   }
 
-  .form-group input,
-  .form-group select {
+  .organizer-form .form-group input[type="text"],
+  .organizer-form .form-group select,
+  .organizer-form .form-group textarea {
     padding: 0.75rem 0.875rem;
     font-size: 0.9rem;
   }
 
-  .submit-btn {
+  .organizer-form .submit-btn {
     padding: 0.875rem;
     font-size: 0.95rem;
   }
 
-  .success-toast {
+  .organizer-form-page .success-toast {
     top: 10px;
     right: 10px;
     left: 10px;
@@ -433,38 +364,74 @@
     padding: 1.75rem 1.25rem;
   }
 
-  .tag {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+  .organizer-title {
+    font-size: 1.25rem;
   }
 }
 
 /* ============================================
    ACCESSIBILITY
    ============================================ */
-.form-group input:focus-visible,
-.form-group select:focus-visible,
-.checkbox-group label:focus-visible,
-.submit-btn:focus-visible,
-.remove-btn:focus-visible {
-  outline: 2px solid var(--primary-color);
+.organizer-form .form-group input:focus-visible,
+.organizer-form .form-group select:focus-visible,
+.organizer-form .form-group textarea:focus-visible,
+.organizer-form .checkbox-group label:focus-visible,
+.organizer-form .submit-btn:focus-visible {
+  outline: 2px solid #667eea;
   outline-offset: 2px;
 }
 
 /* ============================================
-   PRINT STYLES
+   DARK MODE
    ============================================ */
-@media print {
-  .organizer-bg-decoration {
-    display: none;
-  }
+body.dark-mode .organizer-form-page {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
 
-  .organizer-form-page {
-    background: var(--white);
-  }
+body.dark-mode .organizer-form-container {
+  background: #1e293b;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.4);
+}
 
-  .organizer-form-container {
-    box-shadow: none;
-    border: 1px solid var(--border-color);
-  }
+body.dark-mode .organizer-title {
+  color: #f1f5f9;
+}
+
+body.dark-mode .organizer-form .form-group label {
+  color: #e2e8f0;
+}
+
+body.dark-mode .organizer-form .form-group input[type="text"],
+body.dark-mode .organizer-form .form-group select,
+body.dark-mode .organizer-form .form-group textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .organizer-form .form-group input::placeholder,
+body.dark-mode .organizer-form .form-group textarea::placeholder {
+  color: #64748b;
+}
+
+body.dark-mode .organizer-form .form-group input:focus,
+body.dark-mode .organizer-form .form-group select:focus,
+body.dark-mode .organizer-form .form-group textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .organizer-form .checkbox-group label {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .organizer-form .checkbox-group label:hover {
+  border-color: #667eea;
+}
+
+body.dark-mode .organizer-form .checkbox-group label:has(input:checked) {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
 }

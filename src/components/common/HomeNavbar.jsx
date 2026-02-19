@@ -37,22 +37,34 @@ const HomeNavbar = () => {
     document.body.classList.toggle("dark-mode", isDark);
   }, []);
 
-  // Fetch profile image (for students)
+  // Fetch profile image based on role
   useEffect(() => {
     const fetchProfileImage = async () => {
-      if (user?.role === "student") {
-        try {
+      try {
+        if (user?.role === "student") {
           const { studentAPI } = await import("../../services/api");
           const response = await studentAPI.getProfile();
           if (response.student?.profileImage) {
             setProfileImage(response.student.profileImage);
           }
-        } catch (error) {
-          console.error("Error fetching profile image:", error);
+        } else if (user?.role === "mentor") {
+          const { mentorAPI } = await import("../../services/api");
+          const response = await mentorAPI.getProfile();
+          if (response.mentor?.profileImage) {
+            setProfileImage(response.mentor.profileImage);
+          }
+        } else if (user?.role === "organizer") {
+          const { organizerAPI } = await import("../../services/api");
+          const response = await organizerAPI.getProfile();
+          if (response.organizer?.profileImage) {
+            setProfileImage(response.organizer.profileImage);
+          }
         }
+      } catch (error) {
+        // Profile image fetch failed silently
       }
     };
-    fetchProfileImage();
+    if (user?.role) fetchProfileImage();
   }, [user?.role]);
 
   // Toggle dark/light mode
@@ -69,11 +81,9 @@ const HomeNavbar = () => {
     navigate("/login");
   };
 
-  // Navigate to user's profile page based on role (disabled for admins)
+  // Navigate to user's profile page based on role
   const onProfileClick = () => {
-    // Don't navigate for admin users
     if (user?.role === "admin") return;
-    
     if (user?.role === "student") navigate("/student-profile");
     else if (user?.role === "organizer") navigate("/organizer-profile");
     else if (user?.role === "mentor") navigate("/mentor-profile");
@@ -82,6 +92,21 @@ const HomeNavbar = () => {
 
   // Navigate to home
   const goHome = () => navigate("/home");
+
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (user?.name) {
+      const parts = user.name.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return parts[0][0].toUpperCase();
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return 'U';
+  };
 
   // Mobile menu navigation items
   const getMobileMenuItems = () => {
@@ -115,22 +140,13 @@ const HomeNavbar = () => {
   return (
     <header className="navbar">
       <div className="navbar-container">
-        {/* Left: Hamburger (mobile only) + Logo */}
+        {/* Left: Logo */}
         <div className="navbar-left">
-          {isMobile && (
-            <button
-              className="mobile-menu-btn"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-            </button>
-          )}
           <div
             className="navbar-logo"
             onClick={goHome}
             role="button"
-            tabIndex={1000}
+            tabIndex={0}
           >
             <img src={logoImage} alt="MentorLink Logo" className="logo-image" />
           </div>
@@ -153,17 +169,17 @@ const HomeNavbar = () => {
           {/* Notifications */}
           <NotificationBell />
 
-          {/* Dark Mode Toggle */}
+          {/* Dark Mode Toggle - hidden on mobile */}
           <button
-            className="icon-btn theme-toggle"
+            className="icon-btn theme-toggle hide-mobile"
             onClick={toggleDark}
             aria-label="Toggle dark mode"
           >
             {dark ? <FiSun size={20} /> : <FiMoon size={20} />}
           </button>
 
-          {/* Logout */}
-          <button className="btn btn--ghost logout-btn" onClick={logout}>
+          {/* Logout - hidden on mobile */}
+          <button className="btn btn--ghost logout-btn hide-mobile" onClick={logout}>
             <FiLogOut size={18} />
           </button>
 
@@ -173,19 +189,23 @@ const HomeNavbar = () => {
               <img
                 src={profileImage}
                 alt="Profile"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                }}
+                className="avatar-img"
               />
             ) : (
-              <span role="img" aria-label="user">
-                🧑
-              </span>
+              <span className="avatar-initials">{getInitials()}</span>
             )}
           </button>
+
+          {/* Hamburger Menu - mobile only */}
+          {isMobile && (
+            <button
+              className="icon-btn mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+            </button>
+          )}
         </div>
       </div>
 
@@ -199,7 +219,20 @@ const HomeNavbar = () => {
           />
           <nav className="mobile-menu-drawer">
             <div className="mobile-menu-header">
-              <span>Menu</span>
+              {/* Profile info in drawer header */}
+              <div className="mobile-menu-user">
+                <div className="mobile-menu-avatar">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="avatar-img" />
+                  ) : (
+                    <span className="avatar-initials">{getInitials()}</span>
+                  )}
+                </div>
+                <div className="mobile-menu-user-info">
+                  <span className="mobile-menu-user-name">{user?.name || 'User'}</span>
+                  <span className="mobile-menu-user-role">{user?.role || ''}</span>
+                </div>
+              </div>
               <button
                 className="mobile-menu-close"
                 onClick={() => setMobileMenuOpen(false)}
@@ -223,6 +256,13 @@ const HomeNavbar = () => {
                   </button>
                 </li>
               ))}
+              {/* Dark mode toggle in menu */}
+              <li>
+                <button className="mobile-menu-item" onClick={toggleDark}>
+                  <span className="mobile-menu-icon">{dark ? <FiSun /> : <FiMoon />}</span>
+                  <span className="mobile-menu-label">{dark ? 'Light Mode' : 'Dark Mode'}</span>
+                </button>
+              </li>
             </ul>
             <div className="mobile-menu-footer">
               <button

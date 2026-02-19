@@ -21,7 +21,13 @@
   justify-content: space-between;
 }
 
-/* ==================== LOGO ==================== */
+/* ==================== LEFT: LOGO ==================== */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -44,13 +50,13 @@
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* ==================== ICON BUTTONS ==================== */
 .icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid #e5e7eb;
   background: #ffffff;
@@ -61,6 +67,7 @@
   color: #1f2937;
   transition: all 0.2s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .icon-btn svg {
@@ -82,6 +89,7 @@
   stroke: #3b82f6;
 }
 
+/* Message badge */
 .messages-btn .badge {
   position: absolute;
   top: -2px;
@@ -109,17 +117,12 @@
 }
 
 .theme-toggle svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   stroke-width: 2.5;
   stroke: currentColor;
   fill: none;
   display: block;
-}
-
-.theme-toggle svg path {
-  stroke: currentColor;
-  fill: none;
 }
 
 .theme-toggle:hover {
@@ -158,31 +161,58 @@
   display: block;
 }
 
-.logout-btn svg path {
-  stroke: currentColor;
-  fill: none;
-}
-
 /* ==================== AVATAR ==================== */
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid #e5e7eb;
-  background: #ffffff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 22px;
   overflow: hidden;
+  flex-shrink: 0;
+  padding: 0;
 }
 
 .avatar:hover {
   border-color: #3b82f6;
   transform: scale(1.08);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-initials {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+/* ==================== MOBILE MENU BUTTON ==================== */
+.mobile-menu-btn {
+  border-color: #e5e7eb;
+}
+
+.mobile-menu-btn:hover {
+  background: #f3f4f6;
+  border-color: #667eea;
+}
+
+.mobile-menu-btn svg {
+  stroke: #374151;
 }
 
 /* ==================== FOCUS STATES ==================== */
@@ -222,7 +252,6 @@ body.dark-mode .icon-btn:hover {
 
 body.dark-mode .icon-btn svg {
   stroke: #f3f4f6;
-  stroke-width: 2.5;
 }
 
 body.dark-mode .theme-toggle:hover {
@@ -244,9 +273,7 @@ body.dark-mode .logout-btn:hover {
 }
 
 body.dark-mode .avatar {
-  background: #374151;
   border-color: #4b5563;
-  color: #f3f4f6;
 }
 
 body.dark-mode .avatar:hover {
@@ -257,7 +284,7 @@ body.dark-mode .messages-btn .badge {
   border-color: #1f2937;
 }
 
-/* ==================== RESPONSIVE ==================== */
+/* ==================== RESPONSIVE: TABLET ==================== */
 @media (max-width: 768px) {
   .navbar-container {
     padding: 0 16px;
@@ -272,25 +299,18 @@ body.dark-mode .messages-btn .badge {
     height: 40px;
   }
 
-  .icon-btn svg {
-    width: 20px;
-    height: 20px;
-  }
-
   .logout-btn {
     padding: 8px 12px;
     font-size: 13px;
   }
 
-  .logout-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-
   .avatar {
     width: 40px;
     height: 40px;
-    font-size: 20px;
+  }
+
+  .avatar-initials {
+    font-size: 14px;
   }
 
   .logo-image {
@@ -298,9 +318,10 @@ body.dark-mode .messages-btn .badge {
   }
 }
 
+/* ==================== RESPONSIVE: MOBILE ==================== */
 @media (max-width: 480px) {
   .navbar {
-    height: 60px;
+    height: 56px;
   }
 
   .navbar-container {
@@ -308,7 +329,12 @@ body.dark-mode .messages-btn .badge {
   }
 
   .navbar-right {
-    gap: 4px;
+    gap: 6px;
+  }
+
+  /* Hide dark mode toggle and logout on mobile - they're in the drawer menu */
+  .hide-mobile {
+    display: none !important;
   }
 
   .icon-btn {
@@ -321,47 +347,36 @@ body.dark-mode .messages-btn .badge {
     height: 18px;
   }
 
-  /* Hide logout button on very small screens, keep icon only */
-  .logout-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border-radius: 50%;
-    justify-content: center;
-  }
-
-  .logout-btn span,
-  .logout-btn-text {
-    display: none;
-  }
-
   .avatar {
     width: 36px;
     height: 36px;
-    font-size: 18px;
+  }
+
+  .avatar-initials {
+    font-size: 13px;
   }
 
   .logo-image {
-    height: 32px;
+    height: 30px;
   }
 
   .messages-btn .badge {
     min-width: 16px;
     height: 16px;
     font-size: 9px;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
   }
 }
 
 /* Extra small screens */
 @media (max-width: 360px) {
   .navbar {
-    height: 56px;
+    height: 52px;
   }
 
   .navbar-right {
-    gap: 2px;
+    gap: 4px;
   }
 
   .icon-btn {
@@ -374,57 +389,21 @@ body.dark-mode .messages-btn .badge {
     height: 16px;
   }
 
-  .logout-btn {
-    width: 32px;
-    height: 32px;
-  }
-
   .avatar {
     width: 32px;
     height: 32px;
-    font-size: 16px;
+  }
+
+  .avatar-initials {
+    font-size: 12px;
   }
 
   .logo-image {
-    height: 28px;
+    height: 26px;
   }
 }
 
-/* ==================== MOBILE MENU ==================== */
-.navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.mobile-menu-btn {
-  display: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 2px solid var(--primary-orange, #FF8C42);
-  background: #ffffff;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--primary-orange, #FF8C42);
-  transition: all 0.2s ease;
-}
-
-.mobile-menu-btn:hover {
-  background: #fff7ed;
-  border-color: var(--primary-orange, #FF8C42);
-  color: var(--primary-orange, #FF8C42);
-}
-
-.mobile-menu-btn svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2.5;
-  stroke: var(--primary-orange, #FF8C42);
-}
-
-/* Mobile Menu Overlay */
+/* ==================== MOBILE MENU DRAWER ==================== */
 .mobile-menu-overlay {
   display: none;
   position: fixed;
@@ -434,15 +413,14 @@ body.dark-mode .messages-btn .badge {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1100;
-  animation: fadeIn 0.2s ease;
+  animation: navFadeIn 0.2s ease;
 }
 
-@keyframes fadeIn {
+@keyframes navFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Mobile Menu Drawer */
 .mobile-menu-drawer {
   display: none;
   position: fixed;
@@ -455,23 +433,75 @@ body.dark-mode .messages-btn .badge {
   z-index: 1200;
   flex-direction: column;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-  animation: slideInLeft 0.25s ease;
+  animation: navSlideIn 0.25s ease;
 }
 
-@keyframes slideInLeft {
+@keyframes navSlideIn {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
 
+/* Drawer Header with profile */
 .mobile-menu-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid #e5e7eb;
-  font-size: 18px;
+}
+
+.mobile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-menu-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mobile-menu-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mobile-menu-avatar .avatar-initials {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.mobile-menu-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mobile-menu-user-name {
+  font-size: 15px;
   font-weight: 600;
   color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-menu-user-role {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: capitalize;
 }
 
 .mobile-menu-close {
@@ -486,6 +516,7 @@ body.dark-mode .messages-btn .badge {
   cursor: pointer;
   color: #6b7280;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .mobile-menu-close:hover {
@@ -493,6 +524,7 @@ body.dark-mode .messages-btn .badge {
   color: #dc2626;
 }
 
+/* Menu list */
 .mobile-menu-list {
   flex: 1;
   list-style: none;
@@ -523,7 +555,7 @@ body.dark-mode .messages-btn .badge {
 
 .mobile-menu-item:hover {
   background: #f3f4f6;
-  color: var(--primary-orange, #FF8C42);
+  color: #667eea;
 }
 
 .mobile-menu-item--danger {
@@ -570,30 +602,21 @@ body.dark-mode .messages-btn .badge {
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Dark Mode Mobile Menu */
-body.dark-mode .mobile-menu-btn {
-  background: #1f2937;
-  border-color: var(--primary-orange, #FF8C42);
-  color: var(--primary-orange, #FF8C42);
-}
-
-body.dark-mode .mobile-menu-btn svg {
-  stroke: var(--primary-orange, #FF8C42);
-}
-
-body.dark-mode .mobile-menu-btn:hover {
-  background: rgba(255, 140, 66, 0.15);
-  border-color: var(--primary-orange, #FF8C42);
-  color: var(--primary-orange, #FF8C42);
-}
-
+/* ==================== DARK MODE: MOBILE MENU ==================== */
 body.dark-mode .mobile-menu-drawer {
   background: #1f2937;
 }
 
 body.dark-mode .mobile-menu-header {
   border-bottom-color: #374151;
+}
+
+body.dark-mode .mobile-menu-user-name {
   color: #f3f4f6;
+}
+
+body.dark-mode .mobile-menu-user-role {
+  color: #9ca3af;
 }
 
 body.dark-mode .mobile-menu-close {
@@ -612,7 +635,7 @@ body.dark-mode .mobile-menu-item {
 
 body.dark-mode .mobile-menu-item:hover {
   background: #374151;
-  color: var(--primary-orange, #FF8C42);
+  color: #667eea;
 }
 
 body.dark-mode .mobile-menu-item--danger {
@@ -628,23 +651,10 @@ body.dark-mode .mobile-menu-footer {
   border-top-color: #374151;
 }
 
-body.dark-mode .mobile-menu-list {
-  border-bottom-color: #374151;
-}
-
-/* Show mobile menu on small screens */
+/* Show mobile menu elements on small screens */
 @media (max-width: 480px) {
-  .mobile-menu-btn {
-    display: flex;
-  }
-
   .mobile-menu-overlay,
   .mobile-menu-drawer {
     display: flex;
-  }
-
-  /* Hide some navbar items on mobile since they're in the menu */
-  .logout-btn {
-    display: none;
   }
 }

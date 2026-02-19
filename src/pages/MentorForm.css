@@ -1,37 +1,16 @@
 /* ============================================
-   MINIMAL FUTURISTIC STUDENT FORM
+   MENTOR FORM - Clean & Responsive
    ============================================ */
-
-/* CSS Variables - Matching Signup Page */
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --primary-color: #667eea;
-  --primary-hover: #5568d3;
-  --text-color: #1a202c;
-  --text-light: #718096;
-  --border-color: #e2e8f0;
-  --bg-color: #f7fafc;
-  --white: #ffffff;
-  --error: #ef4444;
-  --success: #48bb78;
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 /* ============================================
    ANIMATED BACKGROUND
    ============================================ */
-.student-form-page {
+.mentor-form-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -41,8 +20,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animated Background Circles */
-.student-bg-decoration {
+.mentor-bg-decoration {
   position: fixed;
   top: 0;
   left: 0;
@@ -53,14 +31,14 @@
   pointer-events: none;
 }
 
-.student-circle {
+.mentor-circle {
   position: absolute;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
-  animation: float 20s infinite ease-in-out;
+  animation: mentorFloat 20s infinite ease-in-out;
 }
 
-.student-circle-1 {
+.mentor-circle-1 {
   width: 300px;
   height: 300px;
   top: -150px;
@@ -68,7 +46,7 @@
   animation-delay: 0s;
 }
 
-.student-circle-2 {
+.mentor-circle-2 {
   width: 200px;
   height: 200px;
   bottom: -100px;
@@ -76,7 +54,7 @@
   animation-delay: 5s;
 }
 
-.student-circle-3 {
+.mentor-circle-3 {
   width: 150px;
   height: 150px;
   top: 50%;
@@ -84,7 +62,7 @@
   animation-delay: 10s;
 }
 
-@keyframes float {
+@keyframes mentorFloat {
   0%, 100% {
     transform: translateY(0) scale(1);
     opacity: 0.3;
@@ -96,21 +74,21 @@
 }
 
 /* ============================================
-   MAIN CONTAINER - Minimal & Clean
+   MAIN CONTAINER
    ============================================ */
-.student-form-container {
+.mentor-form-container {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 600px;
-  background: var(--white);
+  background: #ffffff;
   border-radius: 24px;
   padding: 2.5rem;
-  box-shadow: var(--shadow-xl);
-  animation: slideDown 0.6s ease-out;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+  animation: mentorSlideDown 0.6s ease-out;
 }
 
-@keyframes slideDown {
+@keyframes mentorSlideDown {
   from {
     opacity: 0;
     transform: translateY(-30px);
@@ -122,19 +100,19 @@
 }
 
 /* ============================================
-   HEADER - Minimal Title
+   HEADER
    ============================================ */
-.student-title {
+.mentor-title {
   text-align: center;
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  color: var(--text-color);
+  color: #1a202c;
   position: relative;
   padding-bottom: 1rem;
 }
 
-.student-title::after {
+.mentor-title::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -142,50 +120,52 @@
   transform: translateX(-50%);
   width: 60px;
   height: 4px;
-  background: var(--primary-color);
+  background: #667eea;
   border-radius: 2px;
 }
 
 /* ============================================
-   FORM - Minimal & Clean
+   FORM
    ============================================ */
-.student-form {
+.mentor-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.form-group {
+.mentor-form .form-group {
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-.form-group label {
+.mentor-form .form-group label {
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1a202c;
+  letter-spacing: 0.01em;
 }
 
 /* ============================================
-   INPUT & SELECT FIELDS - Clean Design
+   INPUT, SELECT & TEXTAREA
    ============================================ */
-.form-group input,
-.form-group select {
+.mentor-form .form-group input[type="text"],
+.mentor-form .form-group select,
+.mentor-form .form-group textarea {
   width: 100%;
   padding: 0.85rem 1rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-size: 0.95rem;
-  color: var(--text-color);
+  color: #1a202c;
   transition: all 0.3s ease;
-  background-color: var(--white);
+  background-color: #ffffff;
   outline: none;
   font-family: inherit;
 }
 
-.form-group select {
+.mentor-form .form-group select {
   appearance: none;
   cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23718096' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -194,97 +174,55 @@
   padding-right: 2.5rem;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  border-color: var(--primary-color);
+.mentor-form .form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.mentor-form .form-group input[type="text"]:focus,
+.mentor-form .form-group select:focus,
+.mentor-form .form-group textarea:focus {
+  border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
-.form-group input::placeholder {
+.mentor-form .form-group input::placeholder,
+.mentor-form .form-group textarea::placeholder {
   color: #9ca3af;
 }
 
 /* ============================================
-   TAGS - Minimal Pills
+   CHECKBOX GROUP
    ============================================ */
-.selected-domains {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 50px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  animation: tag-pop 0.3s ease-out;
-}
-
-@keyframes tag-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.remove-btn {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: 1.25rem;
-  font-weight: 700;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.2s ease;
-}
-
-.remove-btn:hover {
-  color: var(--error);
-}
-
-/* ============================================
-   CHECKBOXES & RADIOS - Clean & Minimal
-   ============================================ */
-.checkbox-group {
+.mentor-form .checkbox-group {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.75rem;
 }
 
-.checkbox-group label {
+.mentor-form .checkbox-group label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.95rem;
-  background: var(--white);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #ffffff;
+  margin-bottom: 0;
 }
 
-.checkbox-group label:hover {
-  border-color: var(--primary-color);
+.mentor-form .checkbox-group label:hover {
+  border-color: #667eea;
   background: rgba(102, 126, 234, 0.02);
 }
 
-.checkbox-group input[type="checkbox"],
-.checkbox-group input[type="radio"] {
-  accent-color: var(--primary-color);
+.mentor-form .checkbox-group input[type="checkbox"],
+.mentor-form .checkbox-group input[type="radio"] {
+  accent-color: #667eea;
   cursor: pointer;
   width: 18px;
   height: 18px;
@@ -292,23 +230,52 @@
   flex-shrink: 0;
 }
 
-.checkbox-group input[type="checkbox"]:checked + *,
-.checkbox-group input[type="radio"]:checked ~ * {
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
-.checkbox-group label:has(input:checked) {
-  border-color: var(--primary-color);
+.mentor-form .checkbox-group label:has(input:checked) {
+  border-color: #667eea;
   background: rgba(102, 126, 234, 0.05);
 }
 
 /* ============================================
-   SUBMIT BUTTON - Minimal Gradient
+   SKILLS SELECT (react-select)
    ============================================ */
-.submit-btn {
-  background: var(--primary-color);
-  color: var(--white);
+.mentor-form .skills-select .select__control {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  min-height: 46px;
+  box-shadow: none;
+  font-size: 0.95rem;
+}
+
+.mentor-form .skills-select .select__control:hover {
+  border-color: #667eea;
+}
+
+.mentor-form .skills-select .select__control--is-focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.mentor-form .skills-select .select__multi-value {
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 6px;
+}
+
+.mentor-form .skills-select .select__multi-value__label {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.mentor-form .skills-select .select__multi-value__remove:hover {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+.mentor-form .submit-btn {
+  background: #667eea;
+  color: #ffffff;
   border: none;
   padding: 1rem;
   border-radius: 12px;
@@ -321,26 +288,26 @@
   font-family: inherit;
 }
 
-.submit-btn:hover {
-  background: var(--primary-hover);
+.mentor-form .submit-btn:hover {
+  background: #5568d3;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
-.submit-btn:active {
+.mentor-form .submit-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 /* ============================================
-   SUCCESS TOAST - Minimal
+   SUCCESS TOAST
    ============================================ */
-.success-toast {
+.mentor-form-page .success-toast {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: var(--success);
-  color: var(--white);
+  background: #48bb78;
+  color: #ffffff;
   padding: 1rem 1.25rem;
   border-radius: 12px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
@@ -348,11 +315,11 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  animation: toast-slide 0.3s ease-out;
+  animation: mentorToastSlide 0.3s ease-out;
   font-weight: 500;
 }
 
-@keyframes toast-slide {
+@keyframes mentorToastSlide {
   from {
     opacity: 0;
     transform: translateX(100px);
@@ -363,54 +330,56 @@
   }
 }
 
-.toast-icon {
+.mentor-form-page .toast-icon {
   font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   RESPONSIVE
    ============================================ */
 @media (max-width: 640px) {
-  .student-form-page {
+  .mentor-form-page {
     padding: 1.5rem 1rem;
   }
 
-  .student-form-container {
+  .mentor-form-container {
     padding: 2rem 1.5rem;
     border-radius: 20px;
   }
 
-  .student-title {
-    font-size: 1.5rem;
+  .mentor-title {
+    font-size: 1.4rem;
     margin-bottom: 1.75rem;
   }
 
-  .student-form {
+  .mentor-form {
     gap: 1.25rem;
   }
 
-  .checkbox-group {
+  .mentor-form .checkbox-group {
     grid-template-columns: 1fr;
     gap: 0.625rem;
   }
 
-  .checkbox-group label {
+  .mentor-form .checkbox-group label {
     padding: 0.65rem 0.875rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
   }
 
-  .form-group input,
-  .form-group select {
+  .mentor-form .form-group input[type="text"],
+  .mentor-form .form-group select,
+  .mentor-form .form-group textarea {
     padding: 0.75rem 0.875rem;
     font-size: 0.9rem;
   }
 
-  .submit-btn {
+  .mentor-form .submit-btn {
     padding: 0.875rem;
     font-size: 0.95rem;
   }
 
-  .success-toast {
+  .mentor-form-page .success-toast {
     top: 10px;
     right: 10px;
     left: 10px;
@@ -418,125 +387,116 @@
     font-size: 0.875rem;
   }
 
-  .student-circle-1,
-  .student-circle-2,
-  .student-circle-3 {
+  .mentor-circle-1,
+  .mentor-circle-2,
+  .mentor-circle-3 {
     display: none;
   }
 }
 
 @media (max-width: 420px) {
-  .student-form-container {
+  .mentor-form-container {
     padding: 1.75rem 1.25rem;
   }
 
-  .tag {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+  .mentor-title {
+    font-size: 1.25rem;
   }
 }
 
 /* ============================================
    ACCESSIBILITY
    ============================================ */
-.form-group input:focus-visible,
-.form-group select:focus-visible,
-.checkbox-group label:focus-visible,
-.submit-btn:focus-visible,
-.remove-btn:focus-visible {
-  outline: 2px solid var(--primary-color);
+.mentor-form .form-group input:focus-visible,
+.mentor-form .form-group select:focus-visible,
+.mentor-form .form-group textarea:focus-visible,
+.mentor-form .checkbox-group label:focus-visible,
+.mentor-form .submit-btn:focus-visible {
+  outline: 2px solid #667eea;
   outline-offset: 2px;
 }
 
 /* ============================================
-   PRINT STYLES
+   DARK MODE
    ============================================ */
-@media print {
-  .student-bg-decoration {
-    display: none;
-  }
-
-  .student-form-page {
-    background: var(--white);
-  }
-
-  .student-form-container {
-    box-shadow: none;
-    border: 1px solid var(--border-color);
-  }
-}
-
-/* ==================== DARK MODE ==================== */
-body.dark-mode .student-form-page {
+body.dark-mode .mentor-form-page {
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
 }
 
-body.dark-mode .student-form-container {
+body.dark-mode .mentor-form-container {
   background: #1e293b;
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.4);
 }
 
-body.dark-mode .student-title {
+body.dark-mode .mentor-title {
   color: #f1f5f9;
 }
 
-body.dark-mode .student-title::after {
-  background: #667eea;
-}
-
-body.dark-mode .form-group label {
+body.dark-mode .mentor-form .form-group label {
   color: #e2e8f0;
 }
 
-body.dark-mode .form-group input,
-body.dark-mode .form-group select,
-body.dark-mode .form-group textarea {
+body.dark-mode .mentor-form .form-group input[type="text"],
+body.dark-mode .mentor-form .form-group select,
+body.dark-mode .mentor-form .form-group textarea {
   background: #0f172a;
   border-color: #334155;
   color: #f1f5f9;
 }
 
-body.dark-mode .form-group input::placeholder,
-body.dark-mode .form-group textarea::placeholder {
+body.dark-mode .mentor-form .form-group input::placeholder,
+body.dark-mode .mentor-form .form-group textarea::placeholder {
   color: #64748b;
 }
 
-body.dark-mode .form-group input:focus,
-body.dark-mode .form-group select:focus,
-body.dark-mode .form-group textarea:focus {
+body.dark-mode .mentor-form .form-group input:focus,
+body.dark-mode .mentor-form .form-group select:focus,
+body.dark-mode .mentor-form .form-group textarea:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
-body.dark-mode .tag {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
-  color: #a5b4fc;
-}
-
-body.dark-mode .tag.selected {
-  background: #667eea;
-  color: white;
-}
-
-body.dark-mode .checkbox-group label {
+body.dark-mode .mentor-form .checkbox-group label {
+  background: #0f172a;
+  border-color: #334155;
   color: #e2e8f0;
 }
 
-body.dark-mode .add-link-btn {
+body.dark-mode .mentor-form .checkbox-group label:hover {
+  border-color: #667eea;
+}
+
+body.dark-mode .mentor-form .checkbox-group label:has(input:checked) {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+body.dark-mode .mentor-form .skills-select .select__control {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-mode .mentor-form .skills-select .select__menu {
+  background: #1e293b;
+}
+
+body.dark-mode .mentor-form .skills-select .select__option {
+  color: #e2e8f0;
+}
+
+body.dark-mode .mentor-form .skills-select .select__option--is-focused {
   background: #334155;
-  border-color: #475569;
-  color: #e2e8f0;
 }
 
-body.dark-mode .add-link-btn:hover {
-  background: #475569;
+body.dark-mode .mentor-form .skills-select .select__single-value,
+body.dark-mode .mentor-form .skills-select .select__input-container {
+  color: #f1f5f9;
 }
 
-body.dark-mode .remove-btn {
-  color: #f87171;
+body.dark-mode .mentor-form .skills-select .select__multi-value {
+  background: rgba(102, 126, 234, 0.2);
 }
 
-body.dark-mode .remove-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
+body.dark-mode .mentor-form .skills-select .select__multi-value__label {
+  color: #a5b4fc;
 }
