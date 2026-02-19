@@ -857,6 +857,7 @@ body.dark-mode .chat-message-file:hover {
 
   .messages-right-panel.active {
     top: 56px;
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
   .messages-header {

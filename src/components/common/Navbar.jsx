@@ -51,7 +51,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="navbar landing-nav">
       <div className="navbar-container">
         {/* Logo Section */}
         <div className="navbar-logo" onClick={() => navigate("/home")}>
