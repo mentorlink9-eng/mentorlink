@@ -5,6 +5,7 @@ const Session = require('../models/Session');
 const MentorshipRequest = require('../models/MentorshipRequest');
 const Notification = require('../models/Notification');
 const AuditLog = require('../models/AuditLog');
+const Event = require('../models/Events');
 
 // ==================== USER MANAGEMENT ====================
 
@@ -759,6 +760,103 @@ const permanentlyDeleteAccount = async (req, res) => {
   }
 };
 
+// ==================== EVENT MANAGEMENT ====================
+
+// @desc    Get all events with filters
+// @route   GET /api/admin/events?status=&search=&page=&limit=
+// @access  Private (Admin)
+const getAllEvents = async (req, res) => {
+  try {
+    const { status, search, page = 1, limit = 20 } = req.query;
+    const now = new Date();
+    const query = {};
+
+    if (status === 'upcoming') {
+      query.startDate = { $gt: now };
+    } else if (status === 'ongoing') {
+      query.startDate = { $lte: now };
+      query.endDate = { $gte: now };
+    } else if (status === 'completed') {
+      query.endDate = { $lt: now };
+    }
+
+    if (search) {
+      query.$or = [
+        { eventName: { $regex: search, $options: 'i' } },
+        { eventType: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const total = await Event.countDocuments(query);
+    const events = await Event.find(query)
+      .populate('organizerId', 'name email')
+      .sort({ startDate: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    // Add computed status to each event
+    const eventsWithStatus = events.map(e => {
+      const ev = e.toObject();
+      if (new Date(ev.startDate) > now) ev.status = 'upcoming';
+      else if (new Date(ev.endDate) < now) ev.status = 'completed';
+      else ev.status = 'ongoing';
+      return ev;
+    });
+
+    res.json({
+      events: eventsWithStatus,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error('Error in getAllEvents:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete an event
+// @route   DELETE /api/admin/events/:id
+// @access  Private (Admin)
+const deleteEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    const eventInfo = { id: event._id, name: event.eventName, type: event.eventType };
+
+    await Event.findByIdAndDelete(req.params.id);
+
+    // Create audit log
+    try {
+      await AuditLog.createLog({
+        adminId: req.user._id,
+        adminName: req.user.name,
+        action: 'event.delete',
+        actionLabel: 'deleted event',
+        targetType: 'event',
+        targetId: event._id,
+        reason: `Admin deleted event: ${event.eventName}`,
+        riskLevel: 'MEDIUM',
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+      });
+    } catch (logErr) {
+      console.error('Audit log error:', logErr);
+    }
+
+    res.json({ message: 'Event deleted successfully', event: eventInfo });
+  } catch (error) {
+    console.error('Error in deleteEvent:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -776,4 +874,6 @@ module.exports = {
   getDeletedAccounts,
   recoverDeletedAccount,
   permanentlyDeleteAccount,
+  getAllEvents,
+  deleteEvent,
 };

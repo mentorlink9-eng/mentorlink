@@ -43,6 +43,14 @@ const AdminDashboard = () => {
     const [noteContent, setNoteContent] = useState('');
     const [selectedTarget, setSelectedTarget] = useState(null);
 
+    // Events management state
+    const [events, setEvents] = useState([]);
+    const [eventsLoading, setEventsLoading] = useState(false);
+    const [eventStatusFilter, setEventStatusFilter] = useState('all');
+    const [eventSearch, setEventSearch] = useState('');
+    const [eventsPagination, setEventsPagination] = useState(null);
+    const [eventsPage, setEventsPage] = useState(1);
+
     useEffect(() => {
         fetchStats();
         fetchAlerts();
@@ -60,8 +68,10 @@ const AdminDashboard = () => {
             fetchPendingActions();
         } else if (activeTab === 'alerts') {
             fetchAlerts();
+        } else if (activeTab === 'events') {
+            fetchEvents();
         }
-    }, [activeTab, page, searchTerm, roleFilter]);
+    }, [activeTab, page, searchTerm, roleFilter, eventsPage, eventStatusFilter, eventSearch]);
 
     const fetchStats = async () => {
         try {
@@ -146,6 +156,39 @@ const AdminDashboard = () => {
             setPagination(data.pagination);
         } catch (error) {
             console.error('Error fetching audit logs:', error);
+        }
+    };
+
+    // ==================== EVENTS MANAGEMENT ====================
+    const fetchEvents = async () => {
+        setEventsLoading(true);
+        try {
+            const statusParam = eventStatusFilter !== 'all' ? `&status=${eventStatusFilter}` : '';
+            const searchParam = eventSearch ? `&search=${eventSearch}` : '';
+            const response = await fetch(`${API_BASE}/admin/events?page=${eventsPage}&limit=20${statusParam}${searchParam}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await response.json();
+            setEvents(data.events || []);
+            setEventsPagination(data.pagination);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        } finally {
+            setEventsLoading(false);
+        }
+    };
+
+    const handleDeleteEvent = async (eventId, eventName) => {
+        if (!window.confirm(`Are you sure you want to delete "${eventName}"? This cannot be undone.`)) return;
+        try {
+            await fetch(`${API_BASE}/admin/events/${eventId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            fetchEvents();
+            fetchStats();
+        } catch (error) {
+            console.error('Error deleting event:', error);
         }
     };
 
@@ -705,6 +748,114 @@ const AdminDashboard = () => {
         );
     };
 
+    const renderEventManagement = () => {
+        const getStatusClass = (status) => {
+            switch (status) {
+                case 'upcoming': return 'status-upcoming';
+                case 'ongoing': return 'status-ongoing';
+                case 'completed': return 'status-completed';
+                default: return '';
+            }
+        };
+
+        return (
+            <div className="users-section">
+                <div className="users-controls">
+                    <input
+                        type="text"
+                        placeholder="Search events..."
+                        value={eventSearch}
+                        onChange={(e) => { setEventSearch(e.target.value); setEventsPage(1); }}
+                        className="search-input"
+                    />
+                    <select
+                        value={eventStatusFilter}
+                        onChange={(e) => { setEventStatusFilter(e.target.value); setEventsPage(1); }}
+                        className="role-filter"
+                    >
+                        <option value="all">All Events</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="ongoing">Ongoing</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+
+                {eventsLoading ? (
+                    <div className="loading-state">Loading events...</div>
+                ) : (
+                    <>
+                        <table className="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Type</th>
+                                    <th>Mode</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Organizer</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {events.length > 0 ? events.map(ev => (
+                                    <tr key={ev._id}>
+                                        <td style={{ fontWeight: 600, color: 'var(--text-strong)' }}>{ev.eventName}</td>
+                                        <td>{ev.eventType}</td>
+                                        <td>{ev.eventMode}</td>
+                                        <td style={{ fontSize: '0.85rem' }}>
+                                            {new Date(ev.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        </td>
+                                        <td>
+                                            <span className={`status-pill ${getStatusClass(ev.status)}`}>
+                                                {ev.status}
+                                            </span>
+                                        </td>
+                                        <td>{ev.organizerId?.name || 'Unknown'}</td>
+                                        <td>
+                                            <button
+                                                className="delete-btn"
+                                                type="button"
+                                                onClick={() => handleDeleteEvent(ev._id, ev.eventName)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="7" className="no-data">No events found</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+
+                        {eventsPagination && eventsPagination.pages > 1 && (
+                            <div className="pagination">
+                                <button
+                                    onClick={() => setEventsPage(p => Math.max(1, p - 1))}
+                                    disabled={eventsPage === 1}
+                                    className="pagination-btn"
+                                >
+                                    Previous
+                                </button>
+                                <span className="pagination-info">
+                                    Page {eventsPage} of {eventsPagination.pages}
+                                </span>
+                                <button
+                                    onClick={() => setEventsPage(p => Math.min(eventsPagination.pages, p + 1))}
+                                    disabled={eventsPage === eventsPagination.pages}
+                                    className="pagination-btn"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div className="admin-dashboard-page">
             <HomeNavbar />
@@ -712,7 +863,7 @@ const AdminDashboard = () => {
                 <Sidebar />
                 <div className="admin-content">
                     <div className="admin-header">
-                        <h1>Admin Dashboard - Enhanced Security & Management</h1>
+                        <h1>Admin Dashboard</h1>
                         <div className="admin-tabs">
                             <button
                                 className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
@@ -745,6 +896,12 @@ const AdminDashboard = () => {
                                 Sessions
                             </button>
                             <button
+                                className={`tab-btn ${activeTab === 'events' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('events')}
+                            >
+                                Events
+                            </button>
+                            <button
                                 className={`tab-btn ${activeTab === 'audit-logs' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('audit-logs')}
                             >
@@ -755,6 +912,7 @@ const AdminDashboard = () => {
 
                     {activeTab === 'overview' && renderOverview()}
                     {activeTab === 'users' && renderUserManagement()}
+                    {activeTab === 'events' && renderEventManagement()}
                     {activeTab === 'alerts' && (
                         <RenderAlerts
                             alerts={alerts}

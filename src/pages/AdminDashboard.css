@@ -911,6 +911,9 @@ body {
 
 .status-pill.status-active::before { background: var(--status-green); }
 .status-pill.status-inactive::before { background: var(--status-red); }
+.status-pill.status-upcoming::before { background: #3b82f6; }
+.status-pill.status-ongoing::before { background: var(--status-green); }
+.status-pill.status-completed::before { background: var(--text-muted); }
 
 .action-buttons {
   display: flex;

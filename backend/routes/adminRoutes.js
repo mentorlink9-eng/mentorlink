@@ -17,6 +17,8 @@ const {
     getDeletedAccounts,
     recoverDeletedAccount,
     permanentlyDeleteAccount,
+    getAllEvents,
+    deleteEvent,
 } = require('../controllers/adminController');
 
 const {
@@ -115,6 +117,10 @@ router.patch('/sessions/:id/reschedule', rescheduleSession);
 
 // Connections
 router.get('/connections', getAllConnectionRequests);
+
+// Events
+router.get('/events', getAllEvents);
+router.delete('/events/:id', deleteEvent);
 
 // Audit Logs
 router.get('/audit-logs', getAuditLogs);
