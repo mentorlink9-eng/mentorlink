@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config/api';
 import HomeNavbar from '../components/common/HomeNavbar';
 import Sidebar from '../components/home/Sidebar';
 import Footer from '../components/common/Footer';
@@ -87,7 +88,7 @@ const MentorBriefProfile = () => {
                     // Check if can message
                     try {
                         const mentorshipResponse = await fetch(
-                            `http://localhost:5000/api/requests/check-mentorship-status/${response.mentor.user?._id}`,
+                            `${API_BASE}/requests/check-mentorship-status/${response.mentor.user?._id}`,
                             {
                                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                             }

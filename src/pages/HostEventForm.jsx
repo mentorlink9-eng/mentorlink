@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from '../config/api';
 import HomeNavbar from "../components/common/HomeNavbar";
 import "./HostEventForm.css";
 
@@ -72,7 +73,7 @@ const HostEventForm = () => {
       data.append("organizerId", organizerId);
 
       const response = await axios.post(
-        "http://localhost:5000/api/events",
+        `${API_BASE}/events`,
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },

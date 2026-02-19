@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLayout } from "../contexts/LayoutContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from '../config/api';
 import "./OrganizerProfile.css";
 
 const OrganizerProfile = () => {
@@ -68,7 +69,7 @@ const OrganizerProfile = () => {
 
   const fetchOrganizerEvents = async (organizerId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/events/organizer/${organizerId}`);
+      const response = await axios.get(`${API_BASE}/events/organizer/${organizerId}`);
       const events = response.data.events || [];
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -111,7 +112,7 @@ const OrganizerProfile = () => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/events/${eventId}`);
+        await axios.delete(`${API_BASE}/events/${eventId}`);
         fetchOrganizerEvents(organizerProfile?.user?._id);
       } catch (error) {
         console.error("Error deleting event:", error);

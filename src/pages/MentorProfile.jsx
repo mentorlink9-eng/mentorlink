@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config/api';
 import HomeNavbar from '../components/common/HomeNavbar';
 import Sidebar from '../components/home/Sidebar';
 import ScheduleSessionModal from '../components/common/ScheduleSessionModal';
@@ -260,7 +261,7 @@ const MentorProfile = () => {
 
             // Check mentorship status for messaging capability
             const mentorshipResponse = await fetch(
-              `http://localhost:5000/api/requests/check-mentorship-status/${response.mentor.user?._id}`,
+              `${API_BASE}/requests/check-mentorship-status/${response.mentor.user?._id}`,
               {
                 headers: {
                   'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -296,7 +297,7 @@ const MentorProfile = () => {
 
       try {
         setLoadingRequests(true);
-        const response = await fetch(`http://localhost:5000/api/requests?status=${requestsTab}`, {
+        const response = await fetch(`${API_BASE}/requests?status=${requestsTab}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
@@ -319,7 +320,7 @@ const MentorProfile = () => {
       if (!isOwnProfile) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/mentors/my-mentees`, {
+        const response = await fetch(`${API_BASE}/mentors/my-mentees`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
@@ -399,7 +400,7 @@ const MentorProfile = () => {
 
   const handleAcceptRequest = async (requestId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/requests/${requestId}/accept`, {
+      const response = await fetch(`${API_BASE}/requests/${requestId}/accept`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -416,7 +417,7 @@ const MentorProfile = () => {
         setMenteesCount(mentorResponse.mentor.menteesCount || mentorResponse.mentor.activeMentees?.length || 0);
 
         // Refresh mentees list
-        const menteesResponse = await fetch(`http://localhost:5000/api/mentors/my-mentees`, {
+        const menteesResponse = await fetch(`${API_BASE}/mentors/my-mentees`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
@@ -432,7 +433,7 @@ const MentorProfile = () => {
 
   const handleRejectRequest = async (requestId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/requests/${requestId}/reject`, {
+      const response = await fetch(`${API_BASE}/requests/${requestId}/reject`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

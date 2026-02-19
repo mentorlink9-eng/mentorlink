@@ -969,18 +969,157 @@ body {
   color: var(--text-muted);
 }
 
-@media (max-width: 960px) {
+/* ==================== Mobile Responsive ==================== */
+@media (max-width: 1024px) {
   .admin-content {
     margin-left: 0;
-    padding: 2rem 1.25rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard-page {
+    padding-top: 0;
   }
 
+  .admin-content {
+    margin-left: 0;
+    padding: 1rem 0.75rem;
+    max-width: 100%;
+  }
+
+  .admin-header h1 {
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  /* Scrollable tabs on mobile */
   .admin-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0;
+    flex-wrap: nowrap;
+    padding-bottom: 0;
+  }
+
+  .admin-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    flex: 0 0 auto;
+    min-width: auto;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  /* Stats grid stacks */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
-  .users-table th,
-  .users-table td {
-    padding: 0.5rem;
+  .stat-card {
+    min-height: 100px;
+    padding: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-content h3 {
+    font-size: 0.8rem;
+  }
+
+  /* Analytics stacks */
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Users table scrollable */
+  .users-section {
+    overflow-x: auto;
+  }
+
+  .users-table {
+    min-width: 600px;
+  }
+
+  .users-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input,
+  .role-filter {
+    width: 100%;
+  }
+
+  /* Cards full width */
+  .alert-card,
+  .pending-card,
+  .audit-log-card {
+    padding: 0.75rem;
+  }
+
+  .alert-header,
+  .pending-header,
+  .log-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .alert-buttons,
+  .pending-actions {
+    width: 100%;
+  }
+
+  .alert-buttons button,
+  .pending-actions button {
+    flex: 1;
+  }
+
+  .pending-details {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sessions table scrollable */
+  .sessions-table-container {
+    overflow-x: auto;
+  }
+
+  .sessions-table {
+    min-width: 500px;
+  }
+
+  /* Modals responsive */
+  .modal-content {
+    width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-btn {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .tab-btn .badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
   }
 }

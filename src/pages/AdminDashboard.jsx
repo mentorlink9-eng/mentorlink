@@ -11,6 +11,7 @@ import {
     ReauthModal,
     NoteModal,
 } from '../components/admin/AdminComponents';
+import { API_BASE } from '../config/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -64,7 +65,7 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/admin/stats', {
+            const response = await fetch(`${API_BASE}/admin/stats`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -82,7 +83,7 @@ const AdminDashboard = () => {
         setLoading(true);
         try {
             const roleParam = roleFilter !== 'all' ? `&role=${roleFilter}` : '';
-            const response = await fetch(`http://localhost:5000/api/admin/users?page=${page}&search=${searchTerm}${roleParam}`, {
+            const response = await fetch(`${API_BASE}/admin/users?page=${page}&search=${searchTerm}${roleParam}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -99,7 +100,7 @@ const AdminDashboard = () => {
 
     const fetchAlerts = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/admin/alerts', {
+            const response = await fetch(`${API_BASE}/admin/alerts`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -112,7 +113,7 @@ const AdminDashboard = () => {
 
     const fetchPendingActions = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/admin/pending-actions', {
+            const response = await fetch(`${API_BASE}/admin/pending-actions`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -125,7 +126,7 @@ const AdminDashboard = () => {
 
     const fetchAdminSessions = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/admin/admin-sessions/active', {
+            const response = await fetch(`${API_BASE}/admin/admin-sessions/active`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -137,7 +138,7 @@ const AdminDashboard = () => {
 
     const fetchAuditLogs = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/audit-logs?page=${page}&limit=50`, {
+            const response = await fetch(`${API_BASE}/admin/audit-logs?page=${page}&limit=50`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const data = await response.json();
@@ -150,7 +151,7 @@ const AdminDashboard = () => {
 
     const handleReauthenticate = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/admin/reauth', {
+            const response = await fetch(`${API_BASE}/admin/reauth`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -186,7 +187,7 @@ const AdminDashboard = () => {
         if (!window.confirm(`Are you sure you want to deactivate ${selectedUsers.length} user(s)?`)) return;
         
         try {
-            const response = await fetch('http://localhost:5000/api/admin/bulk/deactivate', {
+            const response = await fetch(`${API_BASE}/admin/bulk/deactivate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -208,7 +209,7 @@ const AdminDashboard = () => {
 
     const handleAcknowledgeAlert = async (alertId) => {
         try {
-            await fetch(`http://localhost:5000/api/admin/alerts/${alertId}/acknowledge`, {
+            await fetch(`${API_BASE}/admin/alerts/${alertId}/acknowledge`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
@@ -221,7 +222,7 @@ const AdminDashboard = () => {
     const handleResolveAlert = async (alertId) => {
         const note = prompt('Resolution note (optional):');
         try {
-            await fetch(`http://localhost:5000/api/admin/alerts/${alertId}/resolve`, {
+            await fetch(`${API_BASE}/admin/alerts/${alertId}/resolve`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -237,7 +238,7 @@ const AdminDashboard = () => {
 
     const handleGenerateAlerts = async () => {
         try {
-            await fetch('http://localhost:5000/api/admin/alerts/generate', {
+            await fetch(`${API_BASE}/admin/alerts/generate`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
@@ -252,7 +253,7 @@ const AdminDashboard = () => {
         if (!window.confirm('Are you sure you want to approve this action?')) return;
         
         try {
-            await fetch(`http://localhost:5000/api/admin/pending-actions/${actionId}/approve`, {
+            await fetch(`${API_BASE}/admin/pending-actions/${actionId}/approve`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
@@ -269,7 +270,7 @@ const AdminDashboard = () => {
         if (!reason) return;
         
         try {
-            await fetch(`http://localhost:5000/api/admin/pending-actions/${actionId}/reject`, {
+            await fetch(`${API_BASE}/admin/pending-actions/${actionId}/reject`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -290,7 +291,7 @@ const AdminDashboard = () => {
         const reason = prompt('Reason for forced logout:');
         
         try {
-            await fetch(`http://localhost:5000/api/admin/admin-sessions/${sessionId}/force-logout`, {
+            await fetch(`${API_BASE}/admin/admin-sessions/${sessionId}/force-logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -314,7 +315,7 @@ const AdminDashboard = () => {
         if (!noteContent || !selectedTarget) return;
         
         try {
-            await fetch('http://localhost:5000/api/admin/notes', {
+            await fetch(`${API_BASE}/admin/notes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -340,7 +341,7 @@ const AdminDashboard = () => {
     const handleDeleteUser = async (userId) => {
         if (!window.confirm('Are you sure you want to delete this user?')) return;
         try {
-            await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+            await fetch(`${API_BASE}/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`

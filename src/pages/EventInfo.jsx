@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from '../config/api';
 import HomeNavbar from "../components/common/HomeNavbar";
 import Sidebar from "../components/home/Sidebar";
 import { useAuth } from "../contexts/AuthContext";
@@ -22,7 +23,7 @@ const EventInfo = () => {
     const fetchEventDetails = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5000/api/events/${eventId}`);
+        const response = await axios.get(`${API_BASE}/events/${eventId}`);
         setEvent(response.data.event);
 
         // Check if current user is the organizer

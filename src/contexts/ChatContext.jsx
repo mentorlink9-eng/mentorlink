@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { SOCKET_URL } from '../config/api';
 import { chatAPI } from '../services/api';
 
 const ChatContext = createContext();
@@ -30,7 +31,7 @@ export const ChatProvider = ({ children }) => {
       return;
     }
 
-    const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
+    const newSocket = io(SOCKET_URL, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,

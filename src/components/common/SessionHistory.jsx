@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../../config/api';
 import './SessionHistory.css';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -54,7 +55,7 @@ const SessionHistory = ({ isOpen, onClose, mentee }) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/sessions/with-user/${userId}`, {
+      const response = await fetch(`${API_BASE}/sessions/with-user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },

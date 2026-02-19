@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config/api';
 import HomeNavbar from '../components/common/HomeNavbar';
 import Sidebar from '../components/home/Sidebar';
 import { useLayout } from '../contexts/LayoutContext';
@@ -19,7 +20,7 @@ const RequestReview = () => {
     const fetchRequest = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/requests/${requestId}`, {
+        const response = await fetch(`${API_BASE}/requests/${requestId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
@@ -48,7 +49,7 @@ const RequestReview = () => {
 
     try {
       setProcessing(true);
-      const response = await fetch(`http://localhost:5000/api/requests/${requestId}/accept`, {
+      const response = await fetch(`${API_BASE}/requests/${requestId}/accept`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -74,7 +75,7 @@ const RequestReview = () => {
 
     try {
       setProcessing(true);
-      const response = await fetch(`http://localhost:5000/api/requests/${requestId}/reject`, {
+      const response = await fetch(`${API_BASE}/requests/${requestId}/reject`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

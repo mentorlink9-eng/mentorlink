@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config/api';
 import HomeNavbar from '../components/common/HomeNavbar';
 import Sidebar from '../components/home/Sidebar';
 import SessionHistory from '../components/common/SessionHistory';
@@ -138,7 +139,7 @@ const StudentProfile = () => {
 
       try {
         setLoadingRequests(true);
-        const response = await fetch(`http://localhost:5000/api/requests/my-requests?status=${activeTab}`, {
+        const response = await fetch(`${API_BASE}/requests/my-requests?status=${activeTab}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
@@ -161,7 +162,7 @@ const StudentProfile = () => {
       if (!isOwnProfile) return;
 
       try {
-        const response = await fetch(`http://localhost:5000/api/requests/my-mentors`, {
+        const response = await fetch(`${API_BASE}/requests/my-mentors`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
