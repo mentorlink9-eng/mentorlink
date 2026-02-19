@@ -111,7 +111,21 @@ const sendOTP = async (email, otp) => {
   }
 };
 
-// @desc    Register user
+// In-memory store for pending signups (before OTP verification)
+// Key: email, Value: { userData, otp, otpExpires }
+const pendingSignups = new Map();
+
+// Clean up expired pending signups every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, data] of pendingSignups.entries()) {
+    if (data.otpExpires < now) {
+      pendingSignups.delete(email);
+    }
+  }
+}, 5 * 60 * 1000);
+
+// @desc    Register user (stores pending signup, does NOT create user in DB)
 // @route   POST /api/users/signup
 // @access  Public
 const registerUser = async (req, res) => {
@@ -123,81 +137,36 @@ const registerUser = async (req, res) => {
   const { name, username, email, bio, gender, role, password } = req.body;
 
   try {
+    // Check if email/username already exist in DB
     if (USE_FILE_DB) {
-      // File DB flow
       const emailExists = fileDbGetUserByEmail(email);
       const usernameExists = fileDbGetUserByUsername(username);
-      if (emailExists || usernameExists) {
-        return res.status(400).json({ message: 'User already exists' });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email already registered. Please login or use a different email.' });
       }
-
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      const user = {
-        id: crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(12).toString('hex'),
-        name,
-        username,
-        email,
-        bio,
-        gender,
-        role,
-        password: hashedPassword,
-        isVerified: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const otp = generateOTP();
-      user.otp = otp;
-      user.otpExpires = Date.now() + 10 * 60 * 1000;
-      await fileDbSaveUser(user);
-
-      let emailSent = true;
-      try {
-        await sendOTP(email, otp);
-      } catch (emailErr) {
-        console.error('OTP email failed during signup:', emailErr?.message);
-        emailSent = false;
+      if (usernameExists) {
+        return res.status(400).json({ message: 'Username already taken. Please choose a different username.' });
       }
-
-      return res.status(201).json({
-        message: emailSent
-          ? 'User registered successfully. Please verify your email with OTP.'
-          : 'User registered successfully. OTP email failed - please use Resend OTP.',
-        userId: user.id,
-        emailSent,
-      });
+    } else {
+      const emailExists = await User.findOne({ email });
+      const usernameExists = await User.findOne({ username });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email already registered. Please login or use a different email.' });
+      }
+      if (usernameExists) {
+        return res.status(400).json({ message: 'Username already taken. Please choose a different username.' });
+      }
     }
 
-    // MongoDB flow - Check both email and username
-    const emailExists = await User.findOne({ email });
-    const usernameExists = await User.findOne({ username });
-
-    if (emailExists) {
-      return res.status(400).json({ message: 'Email already registered. Please login or use a different email.' });
-    }
-
-    if (usernameExists) {
-      return res.status(400).json({ message: 'Username already taken. Please choose a different username.' });
-    }
-
-    const user = await User.create({
-      name,
-      username,
-      email,
-      bio,
-      gender,
-      role,
-      password,
+    // Generate OTP and store signup data in memory (NOT in DB)
+    const otp = generateOTP();
+    pendingSignups.set(email, {
+      userData: { name, username, email, bio, gender, role, password },
+      otp,
+      otpExpires: Date.now() + 10 * 60 * 1000, // 10 minutes
     });
 
-    const otp = generateOTP();
-    user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await user.save();
-
-    // Send OTP email in background - don't block signup response
+    // Send OTP email
     let emailSent = true;
     try {
       await sendOTP(email, otp);
@@ -208,9 +177,8 @@ const registerUser = async (req, res) => {
 
     return res.status(201).json({
       message: emailSent
-        ? 'User registered successfully. Please verify your email with OTP.'
-        : 'User registered successfully. OTP email failed - please use Resend OTP.',
-      userId: user._id,
+        ? 'OTP sent to your email. Please verify to complete registration.'
+        : 'OTP email failed. Please use Resend OTP on the verification page.',
       emailSent,
     });
   } catch (error) {
@@ -218,21 +186,78 @@ const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Verify OTP
+// @desc    Verify OTP and create user in DB
 // @route   POST /api/users/verify-otp
 // @access  Public
 const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
-    if (USE_FILE_DB) {
-      const user = fileDbGetUserByEmail(email);
-      if (!user) {
-        return res.status(400).json({ message: 'User not found' });
-      }
-      if (user.otp !== otp || user.otpExpires < Date.now()) {
+    // First check pending signups (new registration flow)
+    const pending = pendingSignups.get(email);
+    if (pending) {
+      if (pending.otp !== otp || pending.otpExpires < Date.now()) {
         return res.status(400).json({ message: 'Invalid or expired OTP' });
       }
+
+      // OTP verified - NOW create the user in DB
+      const { name, username, email: userEmail, bio, gender, role, password } = pending.userData;
+
+      let userId;
+      let userName = name;
+      let userRole = role;
+
+      if (USE_FILE_DB) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const user = {
+          id: crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(12).toString('hex'),
+          name, username, email: userEmail, bio, gender, role,
+          password: hashedPassword,
+          isVerified: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await fileDbSaveUser(user);
+        userId = user.id;
+      } else {
+        const user = await User.create({
+          name, username, email: userEmail, bio, gender, role, password,
+          isVerified: true,
+        });
+        userId = user._id;
+      }
+
+      // Remove from pending signups
+      pendingSignups.delete(email);
+
+      const token = jwt.sign({ id: userId, role: userRole }, process.env.JWT_SECRET, { expiresIn: '30d' });
+      return res.json({
+        message: 'OTP verified successfully',
+        token,
+        user: { id: userId, name: userName, email: userEmail, role: userRole },
+      });
+    }
+
+    // Fallback: check existing users in DB (for login OTP flow)
+    let user;
+    if (USE_FILE_DB) {
+      user = fileDbGetUserByEmail(email);
+    } else {
+      user = await User.findOne({ email });
+    }
+
+    if (!user) {
+      return res.status(400).json({ message: 'No pending registration found. Please sign up first.' });
+    }
+
+    const userOtp = user.otp;
+    const userOtpExpires = user.otpExpires;
+    if (userOtp !== otp || userOtpExpires < Date.now()) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    if (USE_FILE_DB) {
       user.isVerified = true;
       delete user.otp;
       delete user.otpExpires;
@@ -245,15 +270,6 @@ const verifyOTP = async (req, res) => {
         token,
         user: { id: user.id, name: user.name, email: user.email, role: user.role },
       });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'User not found' });
-    }
-
-    if (user.otp !== otp || user.otpExpires < Date.now()) {
-      return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
 
     user.isVerified = true;
@@ -287,35 +303,42 @@ const resendOTP = async (req, res) => {
   const { email } = req.body;
 
   try {
-    if (USE_FILE_DB) {
-      const user = fileDbGetUserByEmail(email);
-      if (!user) {
-        return res.status(400).json({ message: 'User not found. Please sign up first.' });
-      }
-      if (user.isVerified) {
-        return res.status(400).json({ message: 'Email already verified. Please login.' });
-      }
+    // Check pending signups first (new flow)
+    const pending = pendingSignups.get(email);
+    if (pending) {
       const otp = generateOTP();
-      user.otp = otp;
-      user.otpExpires = Date.now() + 10 * 60 * 1000;
-      user.updatedAt = new Date().toISOString();
-      await fileDbSaveUser(user);
+      pending.otp = otp;
+      pending.otpExpires = Date.now() + 10 * 60 * 1000;
       await sendOTP(email, otp);
       return res.json({ message: 'OTP resent to your email' });
     }
 
-    const user = await User.findOne({ email });
+    // Fallback: check existing unverified users in DB
+    let user;
+    if (USE_FILE_DB) {
+      user = fileDbGetUserByEmail(email);
+    } else {
+      user = await User.findOne({ email });
+    }
+
     if (!user) {
-      return res.status(400).json({ message: 'User not found. Please sign up first.' });
+      return res.status(400).json({ message: 'No pending registration found. Please sign up first.' });
     }
     if (user.isVerified) {
       return res.status(400).json({ message: 'Email already verified. Please login.' });
     }
 
     const otp = generateOTP();
-    user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000;
-    await user.save();
+    if (USE_FILE_DB) {
+      user.otp = otp;
+      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      user.updatedAt = new Date().toISOString();
+      await fileDbSaveUser(user);
+    } else {
+      user.otp = otp;
+      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      await user.save();
+    }
 
     await sendOTP(email, otp);
 

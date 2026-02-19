@@ -72,9 +72,8 @@ const EmailOtp = () => {
 
     const email = localStorage.getItem('signupEmail');
     const role = localStorage.getItem('signupRole');
-    const userId = localStorage.getItem('userId');
 
-    if (!email || !userId || !role) {
+    if (!email || !role) {
       setMessage({ type: 'error', text: 'Session expired. Please sign up again.' });
       setTimeout(() => navigate('/signup'), 2000);
       return;
@@ -85,6 +84,12 @@ const EmailOtp = () => {
       const res = await userAPI.verifyOTP({ email, otp: code });
       if (res?.token) {
         localStorage.setItem('token', res.token);
+      }
+
+      // Get userId from verify response (user is created in DB after OTP verification)
+      const userId = res?.user?.id;
+      if (userId) {
+        localStorage.setItem('userId', userId);
       }
 
       setMessage({ type: 'success', text: 'Verification successful!' });

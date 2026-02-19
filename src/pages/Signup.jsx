@@ -42,8 +42,7 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      const response = await userAPI.signup(formData);
-      localStorage.setItem('userId', response.userId);
+      await userAPI.signup(formData);
       localStorage.setItem('signupEmail', formData.email);
       localStorage.setItem('signupRole', formData.role);
 
