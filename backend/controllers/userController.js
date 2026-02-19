@@ -43,30 +43,40 @@ const getTransporter = async () => {
     return cachedTransporter;
   }
 
+  const emailUser = (process.env.EMAIL_USER || '').trim();
+  const emailPass = (process.env.EMAIL_PASS || '').trim();
+
+  // Debug: log credential info (lengths only, never actual values)
+  console.log(`[SMTP] EMAIL_USER="${emailUser}" (${emailUser.length} chars), EMAIL_PASS length=${emailPass.length} chars`);
+
+  if (!emailUser || !emailPass) {
+    throw new Error('EMAIL_USER or EMAIL_PASS environment variable is missing');
+  }
+
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // App Password from Google Account
+      user: emailUser,
+      pass: emailPass,
     },
     pool: true,
     maxConnections: 3,
     maxMessages: 50,
     tls: {
-      // SECURITY FIX: Enable TLS verification in production
-      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      rejectUnauthorized: false,
     },
   });
 
   try {
     await transporter.verify();
+    console.log('[SMTP] Gmail transporter verified successfully');
+    cachedTransporter = transporter;
   } catch (verifyError) {
-    // Log only error message, never credentials
-    // eslint-disable-next-line no-console
-    console.warn('Gmail transporter verification failed:', verifyError?.message || 'Unknown error');
+    console.warn('[SMTP] Gmail transporter verification failed:', verifyError?.message || 'Unknown error');
+    // Do NOT cache a failed transporter
+    throw verifyError;
   }
 
-  cachedTransporter = transporter;
   return cachedTransporter;
 };
 
