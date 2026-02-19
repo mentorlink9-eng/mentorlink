@@ -47,10 +47,7 @@ const Signup = () => {
       localStorage.setItem('signupRole', formData.role);
 
       setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        navigate('/otp');
-      }, 800);
+      navigate('/otp');
     } catch (error) {
       console.error('Signup error:', error);
       alert('Signup failed: ' + (error.response?.data?.message || error.message));

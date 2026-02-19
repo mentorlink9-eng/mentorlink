@@ -75,13 +75,13 @@ const sendOTP = async (email, otp) => {
   const appName = process.env.APP_NAME || 'MentorLink';
   const fromAddress = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.EMAIL_USER;
   const subject = `OTP for ${appName} Verification`;
-  const text = `Your OTP is: ${otp}. It will expire in 10 minutes.`;
+  const text = `Your OTP is: ${otp}. It will expire in 5 minutes.`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:16px;color:#111">
       <h2 style="margin:0 0 12px 0;font-weight:700;color:#111">${appName} Verification</h2>
       <p style="margin:0 0 12px 0;color:#444">Use the following One-Time Password (OTP) to continue:</p>
       <div style="font-size:28px;letter-spacing:6px;font-weight:700;background:#f4f6f8;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;text-align:center;color:#111">${otp}</div>
-      <p style="margin:12px 0 0 0;color:#666">This code expires in 10 minutes.</p>
+      <p style="margin:12px 0 0 0;color:#666">This code expires in 5 minutes.</p>
       <p style="margin:8px 0 0 0;color:#888;font-size:12px">If you did not request this code, you can safely ignore this email.</p>
     </div>
   `;
@@ -163,7 +163,7 @@ const registerUser = async (req, res) => {
     pendingSignups.set(email, {
       userData: { name, username, email, bio, gender, role, password },
       otp,
-      otpExpires: Date.now() + 10 * 60 * 1000, // 10 minutes
+      otpExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
     });
 
     // Send OTP email
@@ -308,7 +308,7 @@ const resendOTP = async (req, res) => {
     if (pending) {
       const otp = generateOTP();
       pending.otp = otp;
-      pending.otpExpires = Date.now() + 10 * 60 * 1000;
+      pending.otpExpires = Date.now() + 5 * 60 * 1000;
       await sendOTP(email, otp);
       return res.json({ message: 'OTP resent to your email' });
     }
@@ -331,12 +331,12 @@ const resendOTP = async (req, res) => {
     const otp = generateOTP();
     if (USE_FILE_DB) {
       user.otp = otp;
-      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      user.otpExpires = Date.now() + 5 * 60 * 1000;
       user.updatedAt = new Date().toISOString();
       await fileDbSaveUser(user);
     } else {
       user.otp = otp;
-      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      user.otpExpires = Date.now() + 5 * 60 * 1000;
       await user.save();
     }
 
@@ -417,7 +417,7 @@ const sendLoginOTP = async (req, res) => {
       }
       const otp = generateOTP();
       user.otp = otp;
-      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      user.otpExpires = Date.now() + 5 * 60 * 1000;
       user.updatedAt = new Date().toISOString();
       await fileDbSaveUser(user);
       await sendOTP(email, otp);
@@ -431,7 +431,7 @@ const sendLoginOTP = async (req, res) => {
 
     const otp = generateOTP();
     user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000;
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save();
 
     await sendOTP(email, otp);

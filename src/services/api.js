@@ -92,10 +92,16 @@ const apiRequest = async (endpoint, options = {}) => {
   return data;
 };
 
+// Track whether backend has been confirmed ready at least once
+let backendConfirmedReady = false;
+
 // Public wrapper that ensures backend readiness and retry on transient failures
 const apiRequestSafe = async (endpoint, options = {}) => {
-  // ensure backend is ready (best-effort) - 3 second timeout
-  await waitForBackendReady(3000);
+  // Only check health on first call to avoid repeated 3s delays
+  if (!backendConfirmedReady) {
+    const ready = await waitForBackendReady(3000);
+    if (ready) backendConfirmedReady = true;
+  }
   return withRetry(() => apiRequest(endpoint, options));
 };
 

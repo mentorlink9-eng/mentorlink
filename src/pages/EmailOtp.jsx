@@ -7,7 +7,7 @@ import { FiMail, FiRefreshCw, FiCheck, FiAlertCircle } from 'react-icons/fi';
 
 const EmailOtp = () => {
   const [otp, setOtp] = useState(new Array(6).fill(''));
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(300);
   const [isResending, setIsResending] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
@@ -127,7 +127,7 @@ const EmailOtp = () => {
         return;
       }
       await userAPI.resendOTP({ email });
-      setTimer(30);
+      setTimer(300);
       setOtp(new Array(6).fill(''));
       setMessage({ type: 'success', text: 'OTP resent successfully! Check your email.' });
       inputRefs.current[0]?.focus();
@@ -226,7 +226,7 @@ const EmailOtp = () => {
             </p>
             {timer > 0 && (
               <div className="otp-timer-container">
-                <div className="otp-timer-bar" style={{ width: `${(timer / 30) * 100}%` }}></div>
+                <div className="otp-timer-bar" style={{ width: `${(timer / 300) * 100}%` }}></div>
               </div>
             )}
             {timer > 0 && (
