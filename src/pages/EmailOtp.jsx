@@ -3,27 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import './EmailOtp.css';
 import logoImage from '../assets/mentorlink-logo.png';
 import { userAPI } from '../services/api';
-import { FiRefreshCw, FiCheck, FiAlertCircle, FiShield } from 'react-icons/fi';
+import { FiMail, FiRefreshCw, FiCheck, FiAlertCircle } from 'react-icons/fi';
 
 const EmailOtp = () => {
-  const [verifyCode, setVerifyCode] = useState(''); // code shown on screen
-  const [inputValue, setInputValue] = useState(''); // what user types
+  const [otp, setOtp] = useState(new Array(6).fill(''));
   const [timer, setTimer] = useState(300);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
-  const inputRef = useRef(null);
+  const inputRefs = useRef([]);
 
-  // On mount, get the verifyCode stored by Signup page
   useEffect(() => {
-    const code = localStorage.getItem('verifyCode');
-    if (code) {
-      setVerifyCode(code);
-    }
-    if (inputRef.current) inputRef.current.focus();
+    if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, []);
 
-  // Countdown timer
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer(t => t - 1), 1000);
@@ -31,16 +24,33 @@ const EmailOtp = () => {
     }
   }, [timer]);
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const handleChange = (element, index) => {
+    if (isNaN(element.value)) return false;
+    setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
+    if (element.value && element.nextSibling) element.nextSibling.focus();
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6);
+    if (!/^\d+$/.test(pastedData)) return;
+    const newOtp = [...otp];
+    pastedData.split('').forEach((char, idx) => { if (idx < 6) newOtp[idx] = char; });
+    setOtp(newOtp);
+    const nextIndex = Math.min(pastedData.length, 5);
+    inputRefs.current[nextIndex]?.focus();
   };
 
   const handleContinue = async () => {
-    const code = inputValue.trim().toUpperCase();
-    if (!code) {
-      setMessage({ type: 'error', text: 'Please enter the verification code shown above.' });
+    const code = otp.join('');
+    if (code.length !== 6) {
+      setMessage({ type: 'error', text: 'Please enter the complete 6-digit OTP' });
       return;
     }
 
@@ -54,16 +64,13 @@ const EmailOtp = () => {
     }
 
     try {
-      setMessage({ type: 'loading', text: 'Verifying...' });
+      setMessage({ type: 'loading', text: 'Verifying OTP...' });
       const res = await userAPI.verifyOTP({ email, otp: code });
-
       if (res?.token) localStorage.setItem('token', res.token);
       const userId = res?.user?.id;
       if (userId) localStorage.setItem('userId', userId);
 
-      localStorage.removeItem('verifyCode');
       setMessage({ type: 'success', text: 'Verification successful!' });
-
       setTimeout(() => {
         if (role === 'student') navigate('/student-form', { state: { userId } });
         else if (role === 'mentor') navigate('/mentor-form', { state: { userId } });
@@ -71,18 +78,16 @@ const EmailOtp = () => {
         else navigate('/home');
       }, 1000);
     } catch (err) {
-      setMessage({ type: 'error', text: err?.message || 'Invalid or expired code. Try refreshing.' });
-      setInputValue('');
-      inputRef.current?.focus();
+      setMessage({ type: 'error', text: err?.message || 'Invalid or expired OTP' });
+      setOtp(new Array(6).fill(''));
+      inputRefs.current[0]?.focus();
     }
   };
 
-  const handleRefresh = async () => {
-    if (timer > 0 || isRefreshing) return;
-
-    setIsRefreshing(true);
-    setMessage({ type: 'loading', text: 'Getting new code...' });
-
+  const handleResend = async () => {
+    if (timer > 0 || isResending) return;
+    setIsResending(true);
+    setMessage({ type: 'loading', text: 'Resending OTP...' });
     try {
       const email = localStorage.getItem('signupEmail');
       if (!email) {
@@ -90,31 +95,29 @@ const EmailOtp = () => {
         setTimeout(() => navigate('/signup'), 2000);
         return;
       }
-      const res = await userAPI.resendOTP({ email });
-      const newCode = res?.verifyCode;
-      if (newCode) {
-        setVerifyCode(newCode);
-        localStorage.setItem('verifyCode', newCode);
-      }
+      await userAPI.resendOTP({ email });
       setTimer(300);
-      setInputValue('');
-      setMessage({ type: 'success', text: 'New code generated!' });
-      inputRef.current?.focus();
+      setOtp(new Array(6).fill(''));
+      setMessage({ type: 'success', text: 'OTP resent! Check your email.' });
+      inputRefs.current[0]?.focus();
     } catch (err) {
-      setMessage({ type: 'error', text: err?.message || 'Failed to get new code. Please try again.' });
+      setMessage({ type: 'error', text: err?.message || 'Failed to resend OTP. Please try again.' });
     } finally {
-      setIsRefreshing(false);
+      setIsResending(false);
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && inputValue.trim()) handleContinue();
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const isOtpComplete = otp.every(digit => digit !== '');
 
   return (
     <div className="otp-page">
-      {/* Animated Background */}
       <div className="otp-bg-decoration">
         <div className="otp-circle otp-circle-1"></div>
         <div className="otp-circle otp-circle-2"></div>
@@ -122,50 +125,38 @@ const EmailOtp = () => {
       </div>
 
       <div className="otp-container">
-        {/* Logo */}
         <div className="otp-logo-container">
           <img src={logoImage} alt="MentorLink Logo" className="otp-logo" />
         </div>
 
-        {/* Header */}
         <div className="otp-header">
-          <div className="otp-shield-icon"><FiShield /></div>
-          <h1 className="otp-title">Verify Your Account</h1>
-          <p className="otp-subtitle">
-            Type the code shown below exactly as displayed
-          </p>
+          <h1 className="otp-title">Verify Your Email</h1>
+          <p className="otp-subtitle">We've sent a 6-digit verification code to</p>
+          <p className="otp-email">{localStorage.getItem('signupEmail')}</p>
         </div>
 
-        {/* Captcha Code Display */}
-        <div className="captcha-box">
-          <div className="captcha-label">Your Verification Code</div>
-          <div className="captcha-code">
-            {verifyCode ? verifyCode.split('').map((char, i) => (
-              <span key={i} className="captcha-char">{char}</span>
-            )) : (
-              <span className="captcha-loading">Loading...</span>
-            )}
-          </div>
-          <div className="captcha-hint">Type this code in the box below — expires in {formatTime(timer)}</div>
-        </div>
-
-        {/* Input + Actions */}
         <div className="otp-form">
-          <label className="otp-label">Enter the code above</label>
-          <input
-            ref={inputRef}
-            className="captcha-input"
-            type="text"
-            placeholder="e.g. A3KP7X"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value.toUpperCase())}
-            onKeyDown={handleKeyDown}
-            maxLength={6}
-            autoComplete="off"
-            spellCheck={false}
-          />
+          <label className="otp-label">Enter Verification Code</label>
 
-          {/* Message */}
+          <div className="otp-input-group">
+            {otp.map((data, index) => (
+              <input
+                key={index}
+                className={`otp-input ${data ? 'otp-input-filled' : ''}`}
+                type="text"
+                inputMode="numeric"
+                maxLength="1"
+                value={data}
+                onChange={e => handleChange(e.target, index)}
+                onKeyDown={e => handleKeyDown(e, index)}
+                onFocus={e => e.target.select()}
+                onPaste={index === 0 ? handlePaste : undefined}
+                ref={el => (inputRefs.current[index] = el)}
+                autoComplete="off"
+              />
+            ))}
+          </div>
+
           {message.text && (
             <div className={`otp-message otp-message-${message.type}`}>
               {message.type === 'error' && <FiAlertCircle />}
@@ -174,19 +165,18 @@ const EmailOtp = () => {
             </div>
           )}
 
-          {/* Refresh Section */}
           <div className="otp-resend-section">
             <p className="otp-resend-text">
-              Code expired?{' '}
+              Didn't receive the code?{' '}
               <button
                 className={`otp-resend-button ${timer > 0 ? 'otp-resend-disabled' : ''}`}
-                onClick={handleRefresh}
-                disabled={timer > 0 || isRefreshing}
+                onClick={handleResend}
+                disabled={timer > 0 || isResending}
               >
-                {isRefreshing ? (
-                  <><FiRefreshCw className="otp-spin" /> Getting new code...</>
+                {isResending ? (
+                  <><FiRefreshCw className="otp-spin" /> Resending...</>
                 ) : (
-                  <><FiRefreshCw /> Get New Code</>
+                  <><FiRefreshCw /> Resend OTP</>
                 )}
               </button>
             </p>
@@ -197,16 +187,15 @@ const EmailOtp = () => {
             )}
             {timer > 0 && (
               <p className="otp-timer-text">
-                New code available in <span className="otp-timer-highlight">{formatTime(timer)}</span>
+                Resend available in <span className="otp-timer-highlight">{formatTime(timer)}</span>
               </p>
             )}
           </div>
 
-          {/* Continue Button */}
           <button
-            className={`otp-continue-btn ${inputValue.trim().length === 6 ? 'otp-continue-active' : ''}`}
+            className={`otp-continue-btn ${isOtpComplete ? 'otp-continue-active' : ''}`}
             onClick={handleContinue}
-            disabled={inputValue.trim().length === 0}
+            disabled={!isOtpComplete}
           >
             {message.type === 'loading' ? (
               <><div className="otp-spinner"></div>Verifying...</>
