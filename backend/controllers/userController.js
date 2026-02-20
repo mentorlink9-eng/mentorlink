@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const AdminSession = require('../models/AdminSession');
 const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
@@ -23,73 +24,35 @@ const generateOTP = () => {
   return otp;
 };
 
-// Create and cache a single transporter using Gmail SMTP
-//
-// Gmail SMTP Setup Requirements:
-// 1. Enable 2-Factor Authentication on your Google Account
-// 2. Generate an App Password from Google Account Settings > Security > App Passwords
-// 3. Use the App Password (16 characters without spaces) as EMAIL_PASS in .env
-//
-// Common Gmail SMTP Issues & Solutions:
-// - Invalid credentials: Verify EMAIL_USER is correct and EMAIL_PASS is App Password (not account password)
-// - Spaces in App Password: Remove all spaces from the 16-character App Password
-// - 2FA not enabled: Must enable Two-Factor Authentication before generating App Passwords
-// - "Less secure app access": This setting is deprecated; use App Passwords instead
-// - Connection timeout: Check firewall settings and ensure port 587/465 is not blocked
-//
-let cachedTransporter;
-const getTransporter = async () => {
-  if (cachedTransporter) {
-    return cachedTransporter;
-  }
+// Create Gmail OAuth2 transporter (uses HTTPS port 443 - never blocked by cloud hosts)
+const getOAuth2Transporter = async () => {
+  const clientId = process.env.GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+  const emailUser = process.env.EMAIL_USER;
 
-  const emailUser = (process.env.EMAIL_USER || '').trim();
-  const emailPass = (process.env.EMAIL_PASS || '').trim();
+  const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, 'https://developers.google.com/oauthplayground');
+  oAuth2Client.setCredentials({ refresh_token: refreshToken });
 
-  // Debug: log credential info (lengths only, never actual values)
-  console.log(`[SMTP] EMAIL_USER="${emailUser}" (${emailUser.length} chars), EMAIL_PASS length=${emailPass.length} chars`);
+  const { token: accessToken } = await oAuth2Client.getAccessToken();
 
-  if (!emailUser || !emailPass) {
-    throw new Error('EMAIL_USER or EMAIL_PASS environment variable is missing');
-  }
-
-  // Use explicit host/port instead of service:'gmail' to avoid port 587 blocks on cloud hosts.
-  // Port 465 with secure:true (SSL) is more reliably allowed on Render/Heroku/Railway free tiers.
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // SSL — no STARTTLS negotiation needed, works on port-restricted hosts
+  return nodemailer.createTransport({
+    service: 'gmail',
     auth: {
+      type: 'OAuth2',
       user: emailUser,
-      pass: emailPass,
-    },
-    pool: true,
-    maxConnections: 3,
-    maxMessages: 50,
-    tls: {
-      rejectUnauthorized: false,
+      clientId,
+      clientSecret,
+      refreshToken,
+      accessToken,
     },
   });
-
-  try {
-    await transporter.verify();
-    console.log('[SMTP] Gmail transporter verified successfully');
-    cachedTransporter = transporter;
-  } catch (verifyError) {
-    console.warn('[SMTP] Gmail transporter verification failed:', verifyError?.message || 'Unknown error');
-    // Do NOT cache a failed transporter
-    throw verifyError;
-  }
-
-  return cachedTransporter;
 };
 
-// Send OTP email (both text and HTML)
+// Send OTP email via Gmail OAuth2 REST API (HTTPS - works on all cloud hosts including Render)
 const sendOTP = async (email, otp) => {
   const appName = process.env.APP_NAME || 'MentorLink';
-  const fromAddress = process.env.EMAIL_FROM || process.env.SMTP_FROM || process.env.EMAIL_USER;
   const subject = `OTP for ${appName} Verification`;
-  const text = `Your OTP is: ${otp}. It will expire in 5 minutes.`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:16px;color:#111">
       <h2 style="margin:0 0 12px 0;font-weight:700;color:#111">${appName} Verification</h2>
@@ -100,33 +63,23 @@ const sendOTP = async (email, otp) => {
     </div>
   `;
 
-  const mailOptions = {
-    from: fromAddress ? `${appName} <${fromAddress}>` : undefined,
-    to: email,
-    subject,
-    text,
-    html,
-  };
+  if (String(process.env.DEV_DISABLE_EMAIL || 'false').toLowerCase() === 'true') {
+    console.log(`[DEV] Email disabled. OTP for ${email}: ${otp}`);
+    return;
+  }
 
   try {
-    if (String(process.env.DEV_DISABLE_EMAIL || 'false').toLowerCase() === 'true') {
-      // eslint-disable-next-line no-console
-      console.log(`[DEV] Email disabled. OTP for ${email}: ${otp}`);
-      return;
-    }
-    const transporter = await getTransporter();
-    await transporter.sendMail(mailOptions);
-    // eslint-disable-next-line no-console
+    const transporter = await getOAuth2Transporter();
+    await transporter.sendMail({
+      from: `MentorLink <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject,
+      html,
+    });
     console.log(`[OTP] Email sent successfully to ${email}`);
   } catch (err) {
-    // Clear cached transporter so next attempt creates a fresh one
-    cachedTransporter = null;
-    // eslint-disable-next-line no-console
-    console.error('[OTP] Failed to send email:', err?.message || 'Unknown error');
-    // Emergency fallback: log OTP to server console (visible in Render/cloud logs)
-    // This allows admin to provide OTP manually if SMTP is blocked by the cloud host
-    // eslint-disable-next-line no-console
-    console.warn(`[OTP-FALLBACK] OTP for ${email} = ${otp} (email delivery failed - check SMTP config)`);
+    console.error('[OTP] Failed to send email via Gmail OAuth2:', err?.message || 'Unknown error');
+    console.warn(`[OTP-FALLBACK] OTP for ${email} = ${otp} (email delivery failed)`);
     throw new Error('Failed to send verification email. Please try again later.');
   }
 };
