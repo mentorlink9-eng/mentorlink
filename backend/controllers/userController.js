@@ -53,8 +53,12 @@ const getTransporter = async () => {
     throw new Error('EMAIL_USER or EMAIL_PASS environment variable is missing');
   }
 
+  // Use explicit host/port instead of service:'gmail' to avoid port 587 blocks on cloud hosts.
+  // Port 465 with secure:true (SSL) is more reliably allowed on Render/Heroku/Railway free tiers.
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // SSL — no STARTTLS negotiation needed, works on port-restricted hosts
     auth: {
       user: emailUser,
       pass: emailPass,
@@ -112,11 +116,17 @@ const sendOTP = async (email, otp) => {
     }
     const transporter = await getTransporter();
     await transporter.sendMail(mailOptions);
+    // eslint-disable-next-line no-console
+    console.log(`[OTP] Email sent successfully to ${email}`);
   } catch (err) {
     // Clear cached transporter so next attempt creates a fresh one
     cachedTransporter = null;
     // eslint-disable-next-line no-console
-    console.error('Failed to send OTP email:', err?.message || 'Unknown error');
+    console.error('[OTP] Failed to send email:', err?.message || 'Unknown error');
+    // Emergency fallback: log OTP to server console (visible in Render/cloud logs)
+    // This allows admin to provide OTP manually if SMTP is blocked by the cloud host
+    // eslint-disable-next-line no-console
+    console.warn(`[OTP-FALLBACK] OTP for ${email} = ${otp} (email delivery failed - check SMTP config)`);
     throw new Error('Failed to send verification email. Please try again later.');
   }
 };
