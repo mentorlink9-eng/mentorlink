@@ -42,9 +42,12 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      await userAPI.signup(formData);
+      const res = await userAPI.signup(formData);
       localStorage.setItem('signupEmail', formData.email);
       localStorage.setItem('signupRole', formData.role);
+      if (res?.verifyCode) {
+        localStorage.setItem('verifyCode', res.verifyCode);
+      }
 
       setShowSuccess(true);
       navigate('/otp');

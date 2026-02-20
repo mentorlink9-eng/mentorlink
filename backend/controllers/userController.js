@@ -1,12 +1,26 @@
 const User = require('../models/User');
 const AdminSession = require('../models/AdminSession');
-const nodemailer = require('nodemailer');
-const { google } = require('googleapis');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const fileDb = require('../utils/fileDb');
+
+// ─── EMAIL (SMTP) - KEPT FOR FUTURE USE WHEN EMAIL PROVIDER IS CONFIGURED ────
+// const nodemailer = require('nodemailer');
+// const { google } = require('googleapis');
+//
+// Gmail OAuth2 transporter (uncomment when Gmail OAuth2 credentials are ready):
+// const getOAuth2Transporter = async () => { ... };
+//
+// Gmail SMTP transporter (blocked by Render free tier - use OAuth2 or Brevo instead):
+// const getSMTPTransporter = () => nodemailer.createTransport({
+//   host: 'smtp.gmail.com', port: 465, secure: true,
+//   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+// });
+//
+// const sendOTPEmail = async (email, otp) => { ... };
+// ─────────────────────────────────────────────────────────────────────────────
 
 const USE_FILE_DB = String(process.env.USE_FILE_DB || 'false').toLowerCase() === 'true';
 
@@ -15,73 +29,15 @@ const fileDbGetUserByEmail = (email) => fileDb.findUserByEmail(email);
 const fileDbGetUserByUsername = (username) => fileDb.findUserByUsername(username);
 const fileDbSaveUser = async (user) => fileDb.upsertUser(user);
 
-// Generate a cryptographically strong 6-digit numeric OTP
+// Generate a 6-character alphanumeric verification code (uppercase letters + digits)
+// This is shown directly on the verify page - no email needed
 const generateOTP = () => {
-  let otp = '';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid confusion
+  let code = '';
   for (let i = 0; i < 6; i += 1) {
-    otp += String(crypto.randomInt(0, 10));
+    code += chars[crypto.randomInt(0, chars.length)];
   }
-  return otp;
-};
-
-// Create Gmail OAuth2 transporter (uses HTTPS port 443 - never blocked by cloud hosts)
-const getOAuth2Transporter = async () => {
-  const clientId = process.env.GMAIL_CLIENT_ID;
-  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
-  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
-  const emailUser = process.env.EMAIL_USER;
-
-  const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, 'https://developers.google.com/oauthplayground');
-  oAuth2Client.setCredentials({ refresh_token: refreshToken });
-
-  const { token: accessToken } = await oAuth2Client.getAccessToken();
-
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      type: 'OAuth2',
-      user: emailUser,
-      clientId,
-      clientSecret,
-      refreshToken,
-      accessToken,
-    },
-  });
-};
-
-// Send OTP email via Gmail OAuth2 REST API (HTTPS - works on all cloud hosts including Render)
-const sendOTP = async (email, otp) => {
-  const appName = process.env.APP_NAME || 'MentorLink';
-  const subject = `OTP for ${appName} Verification`;
-  const html = `
-    <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:16px;color:#111">
-      <h2 style="margin:0 0 12px 0;font-weight:700;color:#111">${appName} Verification</h2>
-      <p style="margin:0 0 12px 0;color:#444">Use the following One-Time Password (OTP) to continue:</p>
-      <div style="font-size:28px;letter-spacing:6px;font-weight:700;background:#f4f6f8;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;text-align:center;color:#111">${otp}</div>
-      <p style="margin:12px 0 0 0;color:#666">This code expires in 5 minutes.</p>
-      <p style="margin:8px 0 0 0;color:#888;font-size:12px">If you did not request this code, you can safely ignore this email.</p>
-    </div>
-  `;
-
-  if (String(process.env.DEV_DISABLE_EMAIL || 'false').toLowerCase() === 'true') {
-    console.log(`[DEV] Email disabled. OTP for ${email}: ${otp}`);
-    return;
-  }
-
-  try {
-    const transporter = await getOAuth2Transporter();
-    await transporter.sendMail({
-      from: `MentorLink <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject,
-      html,
-    });
-    console.log(`[OTP] Email sent successfully to ${email}`);
-  } catch (err) {
-    console.error('[OTP] Failed to send email via Gmail OAuth2:', err?.message || 'Unknown error');
-    console.warn(`[OTP-FALLBACK] OTP for ${email} = ${otp} (email delivery failed)`);
-    throw new Error('Failed to send verification email. Please try again later.');
-  }
+  return code;
 };
 
 // In-memory store for pending signups (before OTP verification)
@@ -131,7 +87,8 @@ const registerUser = async (req, res) => {
       }
     }
 
-    // Generate OTP and store signup data in memory (NOT in DB)
+    // Generate verification code and store signup data in memory (NOT in DB)
+    // Code is returned directly in the response and shown on the verify page (no email needed)
     const otp = generateOTP();
     pendingSignups.set(email, {
       userData: { name, username, email, bio, gender, role, password },
@@ -139,20 +96,11 @@ const registerUser = async (req, res) => {
       otpExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
     });
 
-    // Send OTP email
-    let emailSent = true;
-    try {
-      await sendOTP(email, otp);
-    } catch (emailErr) {
-      console.error('OTP email failed during signup:', emailErr?.message);
-      emailSent = false;
-    }
+    console.log(`[VERIFY] Code for ${email}: ${otp}`);
 
     return res.status(201).json({
-      message: emailSent
-        ? 'OTP sent to your email. Please verify to complete registration.'
-        : 'OTP email failed. Please use Resend OTP on the verification page.',
-      emailSent,
+      message: 'Account created. Enter the verification code shown on screen to continue.',
+      verifyCode: otp, // returned to frontend, displayed as on-screen captcha
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -282,40 +230,11 @@ const resendOTP = async (req, res) => {
       const otp = generateOTP();
       pending.otp = otp;
       pending.otpExpires = Date.now() + 5 * 60 * 1000;
-      await sendOTP(email, otp);
-      return res.json({ message: 'OTP resent to your email' });
+      console.log(`[VERIFY] Refreshed code for ${email}: ${otp}`);
+      return res.json({ message: 'New verification code generated.', verifyCode: otp });
     }
 
-    // Fallback: check existing unverified users in DB
-    let user;
-    if (USE_FILE_DB) {
-      user = fileDbGetUserByEmail(email);
-    } else {
-      user = await User.findOne({ email });
-    }
-
-    if (!user) {
-      return res.status(400).json({ message: 'No pending registration found. Please sign up first.' });
-    }
-    if (user.isVerified) {
-      return res.status(400).json({ message: 'Email already verified. Please login.' });
-    }
-
-    const otp = generateOTP();
-    if (USE_FILE_DB) {
-      user.otp = otp;
-      user.otpExpires = Date.now() + 5 * 60 * 1000;
-      user.updatedAt = new Date().toISOString();
-      await fileDbSaveUser(user);
-    } else {
-      user.otp = otp;
-      user.otpExpires = Date.now() + 5 * 60 * 1000;
-      await user.save();
-    }
-
-    await sendOTP(email, otp);
-
-    return res.json({ message: 'OTP resent to your email' });
+    return res.status(400).json({ message: 'No pending registration found. Please sign up first.' });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
