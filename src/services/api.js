@@ -42,7 +42,7 @@ const waitForBackendReady = async (timeoutMs = 8000) => {
 };
 
 // Transient retry/backoff wrapper
-const withRetry = async (fn, { attempts = 3, baseDelayMs = 300 } = {}) => {
+const withRetry = async (fn, { attempts = 4, baseDelayMs = 500 } = {}) => {
   let lastErr;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -97,9 +97,10 @@ let backendConfirmedReady = false;
 
 // Public wrapper that ensures backend readiness and retry on transient failures
 const apiRequestSafe = async (endpoint, options = {}) => {
-  // Only check health on first call to avoid repeated 3s delays
+  // On first call wait longer (Render free tier cold starts take ~30-50s)
   if (!backendConfirmedReady) {
-    const ready = await waitForBackendReady(3000);
+    const isLocal = typeof window !== 'undefined' && /localhost|127\.0\.0\.1/i.test(window.location.hostname);
+    const ready = await waitForBackendReady(isLocal ? 3000 : 55000);
     if (ready) backendConfirmedReady = true;
   }
   return withRetry(() => apiRequest(endpoint, options));
