@@ -12,6 +12,7 @@ const EmailOtp = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
   const inputRefs = useRef([]);
+  const verifyCode = localStorage.getItem('verifyCode');
 
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
@@ -134,6 +135,26 @@ const EmailOtp = () => {
           <p className="otp-subtitle">We've sent a 6-digit verification code to</p>
           <p className="otp-email">{localStorage.getItem('signupEmail')}</p>
         </div>
+
+        {verifyCode && (
+          <div style={{
+            background: '#f0fdf4', border: '2px solid #10b981', borderRadius: 12,
+            padding: '16px 24px', margin: '12px 0', textAlign: 'center'
+          }}>
+            <p style={{ margin: '0 0 8px', color: '#065f46', fontWeight: 600, fontSize: 14 }}>
+              Your Verification Code
+            </p>
+            <div style={{
+              fontSize: 32, letterSpacing: 10, fontWeight: 800,
+              color: '#047857', fontFamily: 'monospace'
+            }}>
+              {verifyCode}
+            </div>
+            <p style={{ margin: '8px 0 0', color: '#6b7280', fontSize: 12 }}>
+              Copy and enter this code below
+            </p>
+          </div>
+        )}
 
         <div className="otp-form">
           <label className="otp-label">Enter Verification Code</label>
