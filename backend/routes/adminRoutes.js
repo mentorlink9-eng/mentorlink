@@ -4,6 +4,7 @@ const {
     getAllUsers,
     getUserById,
     updateUserStatus,
+    deleteUserByAdmin,
     getAllMentors,
     approveMentor,
     denyMentor,
@@ -104,6 +105,7 @@ router.post('/bulk/approve-mentors', bulkApproveMentors);
 router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
 router.patch('/users/:id', updateUserStatus);
+router.delete('/users/:id', deleteUserByAdmin);
 
 // Mentors
 router.get('/mentors', getAllMentors);

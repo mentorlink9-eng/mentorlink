@@ -381,19 +381,26 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleDeleteUser = async (userId) => {
-        if (!window.confirm('Are you sure you want to delete this user?')) return;
+    const handleDeleteUser = async (userId, userName) => {
+        if (!window.confirm(`Delete "${userName || 'this user'}"?\n\nThis will permanently delete:\n• Their profile (mentor/student/organizer)\n• All their sessions and mentorship requests\n• All messages and conversations\n• All notifications\n\nThis cannot be undone.`)) return;
         try {
-            await fetch(`${API_BASE}/admin/users/${userId}`, {
+            const response = await fetch(`${API_BASE}/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
+            const data = await response.json();
+            if (!response.ok) {
+                alert(`Failed to delete user: ${data.message}`);
+                return;
+            }
+            // Refresh both user list and overview stats
             fetchUsers();
             fetchStats();
         } catch (error) {
             console.error('Error deleting user:', error);
+            alert('Failed to delete user. Please try again.');
         }
     };
 
@@ -703,13 +710,15 @@ const AdminDashboard = () => {
                                                 >
                                                     Note
                                                 </button>
+                                                {u.role !== 'admin' && (
                                                 <button
                                                     className="delete-btn"
                                                     type="button"
-                                                    onClick={() => handleDeleteUser(u._id)}
+                                                    onClick={() => handleDeleteUser(u._id, u.name)}
                                                 >
                                                     Delete
                                                 </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

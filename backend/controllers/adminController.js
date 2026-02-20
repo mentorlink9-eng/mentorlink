@@ -1,11 +1,14 @@
 const User = require('../models/User');
 const Mentor = require('../models/Mentor');
 const Student = require('../models/Student');
+const Organizer = require('../models/Organizer');
 const Session = require('../models/Session');
 const MentorshipRequest = require('../models/MentorshipRequest');
 const Notification = require('../models/Notification');
 const AuditLog = require('../models/AuditLog');
 const Event = require('../models/Events');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 
 // ==================== USER MANAGEMENT ====================
 
@@ -857,10 +860,89 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+// ==================== ADMIN: HARD DELETE USER + ALL DATA ====================
+
+// @desc    Admin hard-deletes a user and ALL their associated data
+// @route   DELETE /api/admin/users/:id
+// @access  Private (Admin)
+const deleteUserByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent deleting admin accounts
+    const user = await User.findById(id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.role === 'admin') {
+      return res.status(403).json({ message: 'Admin accounts cannot be deleted this way.' });
+    }
+
+    // Save info for audit log before deletion
+    const userInfo = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
+
+    // 1. Delete role-specific profile
+    if (user.role === 'mentor') {
+      await Mentor.deleteMany({ user: id });
+    } else if (user.role === 'student') {
+      await Student.deleteMany({ user: id });
+    } else if (user.role === 'organizer') {
+      await Organizer.deleteMany({ user: id });
+      // Also delete events created by this organizer
+      await Event.deleteMany({ organizerId: id });
+    }
+
+    // 2. Delete sessions involving this user
+    await Session.deleteMany({ $or: [{ mentor: id }, { student: id }] });
+
+    // 3. Delete mentorship requests involving this user
+    await MentorshipRequest.deleteMany({ $or: [{ mentor: id }, { student: id }] });
+
+    // 4. Delete all notifications for this user
+    await Notification.deleteMany({ recipient: id });
+
+    // 5. Delete conversations and messages involving this user
+    const conversations = await Conversation.find({ participants: id });
+    const conversationIds = conversations.map(c => c._id);
+    if (conversationIds.length > 0) {
+      await Message.deleteMany({ conversation: { $in: conversationIds } });
+      await Conversation.deleteMany({ _id: { $in: conversationIds } });
+    }
+
+    // 6. Delete the user document itself
+    await User.deleteOne({ _id: id });
+
+    // 7. Create audit log
+    await AuditLog.createLog(
+      req.user._id,
+      'user.admin_delete',
+      'user',
+      id,
+      { deletedUser: userInfo, deletedBy: req.user.name },
+      req
+    );
+
+    return res.json({
+      message: `User "${userInfo.name}" and all associated data deleted successfully.`,
+      deletedUser: userInfo,
+    });
+  } catch (error) {
+    console.error('Error in deleteUserByAdmin:', error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUserStatus,
+  deleteUserByAdmin,
   getAllMentors,
   approveMentor,
   denyMentor,
