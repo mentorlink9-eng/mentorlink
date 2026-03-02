@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";   // ✅ add this
 import './Hero.css';
-import TypingAnimation from '../common/TypingAnimation';
+import TypingAnimation from '../ui/typing-animation/TypingAnimation';
 import heroImage from '../../assets/heroillustation.png';
 
 const Hero = () => {

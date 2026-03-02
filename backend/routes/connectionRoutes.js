@@ -5,19 +5,18 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-// @route   POST /api/connect/:userId
-// @desc    Toggle connection with a user
+// Specific named routes BEFORE generic routes
+
+// @route   GET /api/connect/check/:userId
 // @access  Private
-router.post('/:userId', protect, toggleConnection);
+router.get('/check/:userId', protect, checkConnection);
 
 // @route   GET /api/connect
-// @desc    Get all connections for logged-in user
 // @access  Private
 router.get('/', protect, getConnections);
 
-// @route   GET /api/connect/check/:userId
-// @desc    Check if connected with a user
+// @route   POST /api/connect/:userId
 // @access  Private
-router.get('/check/:userId', protect, checkConnection);
+router.post('/:userId', protect, toggleConnection);
 
 module.exports = router;

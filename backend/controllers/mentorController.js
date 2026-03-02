@@ -18,7 +18,7 @@ const createOrUpdateMentor = async (req, res) => {
     skills,
   } = req.body;
 
-  // SECURITY FIX: Always use authenticated user ID to prevent unauthorized profile creation
+  // Use authenticated user ID when available, fallback to body.user for initial signup flow
   const user = req.user?._id || req.body.user;
 
   if (!user) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";   // ✅ add this
 import './CTASection.css';
-import TypingAnimation from '../common/TypingAnimation';
+import TypingAnimation from '../ui/typing-animation/TypingAnimation';
 
 const CTASection = () => {
   const [isVisible, setIsVisible] = useState(false);

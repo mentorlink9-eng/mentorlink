@@ -2,12 +2,13 @@
 const express = require("express");
 const Event = require("../models/Events");
 const { upload, uploadToCloudinary } = require("../middleware/upload");
+const { protect } = require("../middleware/auth");
 
 const router = express.Router();
 
 // POST /api/events
 // Accepts multipart/form-data with optional 'banner' file, parses text fields via multer
-router.post("/", (req, res, next) => {
+router.post("/", protect, (req, res, next) => {
   const singleUpload = upload.single('banner');
   singleUpload(req, res, function (err) {
     if (err) {
@@ -115,7 +116,7 @@ router.get("/organizer/:organizerId", async (req, res) => {
 
 // DELETE /api/events/:eventId
 // Delete an event by ID
-router.delete("/:eventId", async (req, res) => {
+router.delete("/:eventId", protect, async (req, res) => {
   try {
     const { eventId } = req.params;
     const event = await Event.findByIdAndDelete(eventId);
@@ -133,7 +134,7 @@ router.delete("/:eventId", async (req, res) => {
 
 // PUT /api/events/:eventId
 // Update an event by ID
-router.put("/:eventId", (req, res, next) => {
+router.put("/:eventId", protect, (req, res, next) => {
   const singleUpload = upload.single('banner');
   singleUpload(req, res, function (err) {
     if (err) {

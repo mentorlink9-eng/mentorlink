@@ -12,34 +12,30 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-// @route   GET /api/notifications
-// @desc    Get all notifications for logged-in user
-// @access  Private
-router.get('/', protect, getNotifications);
+// Specific named routes BEFORE parameterized routes
 
 // @route   GET /api/notifications/unread-count
-// @desc    Get unread notification count
 // @access  Private
 router.get('/unread-count', protect, getUnreadCount);
 
-// @route   PUT /api/notifications/:notificationId/read
-// @desc    Mark notification as read
+// @route   GET /api/notifications
 // @access  Private
-router.put('/:notificationId/read', protect, markAsRead);
+router.get('/', protect, getNotifications);
 
 // @route   PUT /api/notifications/mark-all-read
-// @desc    Mark all notifications as read
 // @access  Private
 router.put('/mark-all-read', protect, markAllAsRead);
 
-// @route   DELETE /api/notifications/:notificationId
-// @desc    Delete notification
+// @route   PUT /api/notifications/:notificationId/read
 // @access  Private
-router.delete('/:notificationId', protect, deleteNotification);
+router.put('/:notificationId/read', protect, markAsRead);
 
 // @route   DELETE /api/notifications/all
-// @desc    Delete all notifications
 // @access  Private
 router.delete('/all', protect, deleteAllNotifications);
+
+// @route   DELETE /api/notifications/:notificationId
+// @access  Private
+router.delete('/:notificationId', protect, deleteNotification);
 
 module.exports = router;

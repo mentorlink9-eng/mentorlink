@@ -18,7 +18,7 @@ const createOrUpdateStudent = async (req, res) => {
     portfolio,
   } = req.body;
 
-  // SECURITY FIX: Prefer authenticated user ID, fall back to body for backwards compatibility
+  // Use authenticated user ID when available, fallback to body.user for initial signup flow
   const user = req.user?._id || req.body.user;
 
   if (!user) {
