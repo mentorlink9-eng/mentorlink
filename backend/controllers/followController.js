@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Mentor = require('../models/Mentor');
+const Conversation = require('../models/Conversation');
 
 // Follow or unfollow a user
 const toggleFollow = async (req, res) => {
@@ -46,6 +47,11 @@ const toggleFollow = async (req, res) => {
     // Save both users
     await Promise.all([currentUser.save(), userToFollow.save()]);
 
+    // Auto-create a conversation when following (so they can chat immediately)
+    if (!isFollowing) {
+      await Conversation.findOrCreateConversation(currentUserId, userId);
+    }
+
     res.json({
       isFollowing: !isFollowing,
       followersCount: userToFollow.followersCount,
@@ -63,11 +69,13 @@ const getFollowers = async (req, res) => {
   try {
     const { userId } = req.params;
     const { page = 1, limit = 20 } = req.query;
+    // Current viewer (may be unauthenticated)
+    const viewerId = req.user?._id?.toString();
 
     const user = await User.findById(userId)
       .populate({
         path: 'followers',
-        select: 'name email profileImage role bio',
+        select: 'name email profileImage role bio following',
         options: {
           skip: (page - 1) * limit,
           limit: parseInt(limit)
@@ -78,8 +86,20 @@ const getFollowers = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Mark mutual followers (followers who the profile owner also follows back)
+    const ownerFollowingSet = new Set(user.following.map(id => id.toString()));
+    const followers = user.followers.map(f => ({
+      _id: f._id,
+      name: f.name,
+      email: f.email,
+      profileImage: f.profileImage,
+      role: f.role,
+      bio: f.bio,
+      isMutual: ownerFollowingSet.has(f._id.toString()),
+    }));
+
     res.json({
-      followers: user.followers,
+      followers,
       total: user.followersCount || 0,
       page: parseInt(page),
       totalPages: Math.ceil((user.followersCount || 0) / limit)
@@ -100,7 +120,7 @@ const getFollowing = async (req, res) => {
     const user = await User.findById(userId)
       .populate({
         path: 'following',
-        select: 'name email profileImage role bio',
+        select: 'name email profileImage role bio followers',
         options: {
           skip: (page - 1) * limit,
           limit: parseInt(limit)
@@ -111,8 +131,20 @@ const getFollowing = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Mark mutual: following users who also follow the profile owner back
+    const ownerFollowersSet = new Set(user.followers.map(id => id.toString()));
+    const following = user.following.map(f => ({
+      _id: f._id,
+      name: f.name,
+      email: f.email,
+      profileImage: f.profileImage,
+      role: f.role,
+      bio: f.bio,
+      isMutual: ownerFollowersSet.has(f._id.toString()),
+    }));
+
     res.json({
-      following: user.following,
+      following,
       total: user.followingCount || 0,
       page: parseInt(page),
       totalPages: Math.ceil((user.followingCount || 0) / limit)

@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Conversation = require('../models/Conversation');
 
 // @desc    Toggle connection (connect/disconnect)
 // @route   POST /api/connect/:userId
@@ -53,6 +54,9 @@ const toggleConnection = async (req, res) => {
 
       await currentUser.save();
       await targetUser.save();
+
+      // Auto-create a conversation so they can chat immediately
+      await Conversation.findOrCreateConversation(currentUserId, targetUserId);
 
       return res.json({
         message: 'Connected successfully',

@@ -1,64 +1,72 @@
 import React, { useEffect, useState } from 'react';
 import './About.css';
+import liveEventsImg from '../../assets/liveeventswebinars.png';
+import mentorshipImg from '../../assets/oneononementorship.png';
+import progressImg from '../../assets/progresstracking.png';
+import careerImg from '../../assets/careergrowth.png';
+import networkImg from '../../assets/globalnetwork.png';
+import skillImg from '../../assets/skillbuilding.png';
+import insightsImg from '../../assets/IndustryInsights.png';
+import collaborationImg from '../../assets/projectcollaboration.png';
 
 const About = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   const aboutItems = [
-    { 
+    {
       id: 1,
-      title: "Live Events & Webinars", 
+      title: "Live Events & Webinars",
       description: "Join exclusive learning sessions, Q&As, and industry-led workshops with top professionals.",
-      image: "src/assets/liveeventswebinars.png",
+      image: liveEventsImg,
       color: "#FF6B6B"
     },
-    { 
+    {
       id: 2,
-      title: "One-on-One Mentorship", 
+      title: "One-on-One Mentorship",
       description: "Connect with experienced mentors for personalized guidance and career advice.",
-      image: "src/assets/oneononementorship.png",
+      image: mentorshipImg,
       color: "#4ECDC4"
     },
-    { 
+    {
       id: 3,
-      title: "Progress Tracking", 
+      title: "Progress Tracking",
       description: "Set learning goals, track your achievements, and grow with your mentor.",
-      image: "src/assets/progresstracking.png",
+      image: progressImg,
       color: "#45B7D1"
     },
-    { 
+    {
       id: 4,
-      title: "Career Growth", 
+      title: "Career Growth",
       description: "Accelerate your professional development with tailored guidance and mentorship.",
-      image: "src/assets/careergrowth.png",
+      image: careerImg,
       color: "#96CEB4"
     },
-    { 
+    {
       id: 5,
-      title: "Global Network", 
+      title: "Global Network",
       description: "Connect with professionals and peers from around the world in your field.",
-      image: "src/assets/globalnetwork.png",
+      image: networkImg,
       color: "#FFEAA7"
     },
-    { 
+    {
       id: 6,
-      title: "Skill Building", 
+      title: "Skill Building",
       description: "Develop new skills through hands-on projects and real-time feedback.",
-      image: "src/assets/skillbuilding.png",
+      image: skillImg,
       color: "#DDA0DD"
     },
-    { 
+    {
       id: 7,
-      title: "Industry Insights", 
+      title: "Industry Insights",
       description: "Get insider knowledge about industry trends and best practices.",
-      image: "src/assets/industryinsights.png",
+      image: insightsImg,
       color: "#98D8C8"
     },
-    { 
+    {
       id: 8,
-      title: "Project Collaboration", 
+      title: "Project Collaboration",
       description: "Work on real projects with mentors and build your portfolio.",
-      image: "src/assets/projectcollaboration.png",
+      image: collaborationImg,
       color: "#F7DC6F"
     }
   ];

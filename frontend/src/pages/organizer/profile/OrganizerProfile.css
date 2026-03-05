@@ -958,3 +958,85 @@ body.dark-mode .event-delete-btn:hover {
 body.dark-mode .no-events {
   color: #64748b;
 }
+
+/* Event Types Edit UI */
+.event-types-edit {
+  margin-top: 12px;
+}
+
+.edit-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.event-type-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.event-type-input-row .edit-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.btn-add-tag {
+  padding: 8px 16px;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-add-tag:hover {
+  background: #059669;
+}
+
+.edit-tags-list {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.editable-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.remove-tag-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 2px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.remove-tag-btn:hover {
+  opacity: 1;
+}
+
+body.dark-mode .edit-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-add-tag {
+  background: #10b981;
+}
+
+body.dark-mode .btn-add-tag:hover {
+  background: #059669;
+}

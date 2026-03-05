@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import HomeNavbar from "../../../components/layout/home-navbar/HomeNavbar";
 import Sidebar from "../../../components/layout/sidebar/Sidebar";
+import Footer from "../../../components/layout/footer/Footer";
 import { organizerAPI } from "../../../services/api";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useLayout } from "../../../contexts/LayoutContext";
@@ -23,6 +24,7 @@ const OrganizerProfile = () => {
   const [presentEvents, setPresentEvents] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [eventTypeInput, setEventTypeInput] = useState("");
 
   // Profile edit form
   const [profileForm, setProfileForm] = useState({
@@ -361,8 +363,53 @@ const OrganizerProfile = () => {
                       placeholder="Your Motivation"
                       rows={4}
                     />
+                    <div className="event-types-edit">
+                      <label className="edit-label">Event Types</label>
+                      <div className="event-type-input-row">
+                        <input
+                          type="text"
+                          className="edit-input"
+                          value={eventTypeInput}
+                          onChange={(e) => setEventTypeInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && eventTypeInput.trim()) {
+                              e.preventDefault();
+                              setProfileForm({ ...profileForm, eventTypes: [...profileForm.eventTypes, eventTypeInput.trim()] });
+                              setEventTypeInput("");
+                            }
+                          }}
+                          placeholder="Add event type and press Enter"
+                        />
+                        <button
+                          type="button"
+                          className="btn-add-tag"
+                          onClick={() => {
+                            if (eventTypeInput.trim()) {
+                              setProfileForm({ ...profileForm, eventTypes: [...profileForm.eventTypes, eventTypeInput.trim()] });
+                              setEventTypeInput("");
+                            }
+                          }}
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div className="skills-list edit-tags-list">
+                        {profileForm.eventTypes.map((t, i) => (
+                          <span key={i} className="skill-tag editable-tag">
+                            {t}
+                            <button
+                              type="button"
+                              className="remove-tag-btn"
+                              onClick={() => setProfileForm({ ...profileForm, eventTypes: profileForm.eventTypes.filter((_, idx) => idx !== i) })}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                     <div className="profile-actions">
-                      <button className="btn-cancel" onClick={() => setIsEditingProfile(false)}>
+                      <button className="btn-cancel" onClick={() => { setIsEditingProfile(false); setEventTypeInput(""); }}>
                         Cancel
                       </button>
                       <button className="btn-save" onClick={handleSaveProfile}>
@@ -407,6 +454,7 @@ const OrganizerProfile = () => {
 
             {renderEvents()}
           </div>
+          <Footer />
         </div>
       </div>
     </div>

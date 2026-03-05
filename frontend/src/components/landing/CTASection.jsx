@@ -58,13 +58,13 @@ const CTASection = () => {
             {/* ✅ Updated with navigation */}
             <button 
               className="student-btn"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/signup")}
             >
               Join as Student
             </button>
-            <button 
+            <button
               className="mentor-btn"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/signup")}
             >
               Become a Mentor
             </button>

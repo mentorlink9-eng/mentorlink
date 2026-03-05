@@ -38,7 +38,7 @@ const Hero = () => {
           {/* ✅ Updated button with navigate */}
           <button 
             className="hero-cta"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/signup")}
           >
             Explore Now
           </button>

@@ -376,6 +376,11 @@ body {
   transform: translateY(-2px);
 }
 
+.metric-clickable:hover .metric-value {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
 .metric-icon {
   font-size: 28px !important;
   width: 28px !important;

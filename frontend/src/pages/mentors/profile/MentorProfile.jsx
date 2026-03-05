@@ -10,6 +10,7 @@ import { mentorAPI, connectionAPI, sessionAPI, userAPI, followAPI } from '../../
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLayout } from '../../../contexts/LayoutContext';
 import PageSkeleton from '../../../components/ui/page-skeleton/PageSkeleton';
+import UserListModal from '../../../components/ui/user-list-modal/UserListModal';
 import './MentorProfile.css';
 
 // Material UI Icons
@@ -70,6 +71,9 @@ const MentorProfile = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalFetch, setModalFetch] = useState(null);
   const [menteesCount, setMenteesCount] = useState(0);
   const [connectionsCount, setConnectionsCount] = useState(0);
   const [connecting, setConnecting] = useState(false);
@@ -846,8 +850,15 @@ const MentorProfile = () => {
 
                     {/* Key Metrics */}
                     <div className="key-metrics-section">
-                      <Tooltip title="Total Followers" arrow>
-                        <div className="metric-item">
+                      <Tooltip title="View Followers" arrow>
+                        <div
+                          className="metric-item metric-clickable"
+                          onClick={() => {
+                            setModalTitle('Followers');
+                            setModalFetch(() => () => followAPI.getFollowers(mentor.user._id).then(r => r.followers || []));
+                            setModalOpen(true);
+                          }}
+                        >
                           <PeopleIcon className="metric-icon" />
                           <div className="metric-content">
                             <span className="metric-value">{followersCount}</span>
@@ -856,8 +867,15 @@ const MentorProfile = () => {
                         </div>
                       </Tooltip>
 
-                      <Tooltip title="Total Connections (Mentees)" arrow>
-                        <div className="metric-item">
+                      <Tooltip title="View Connections" arrow>
+                        <div
+                          className="metric-item metric-clickable"
+                          onClick={() => {
+                            setModalTitle('Connections');
+                            setModalFetch(() => () => connectionAPI.getConnections().then(r => r.connections || []));
+                            setModalOpen(true);
+                          }}
+                        >
                           <GroupsIcon className="metric-icon" />
                           <div className="metric-content">
                             <span className="metric-value">{connectionsCount}</span>
@@ -1492,6 +1510,14 @@ const MentorProfile = () => {
         }}
         mentee={selectedMentee}
       />
+      {modalFetch && (
+        <UserListModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title={modalTitle}
+          fetchUsers={modalFetch}
+        />
+      )}
     </div>
   );
 };

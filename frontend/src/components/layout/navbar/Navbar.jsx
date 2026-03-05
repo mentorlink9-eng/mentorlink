@@ -80,7 +80,7 @@ const Navbar = () => {
             className="get-started-btn"
             onClick={() => {
               setMobileMenuOpen(false);
-              navigate("/login");
+              navigate("/signup");
             }}
           >
             Get Started

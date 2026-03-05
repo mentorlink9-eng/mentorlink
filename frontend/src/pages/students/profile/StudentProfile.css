@@ -926,3 +926,50 @@ body.dark-mode .mentorship-type-tag {
   color: #e2e8f0;
   border-color: #475569;
 }
+
+/* Connections count clickable */
+.connections-clickable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.connections-clickable:hover {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+/* Issue 4: Communication frequency / details grid dark mode */
+body.dark-mode .detail-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .detail-value {
+  color: #f1f5f9;
+}
+
+body.dark-mode .detail-item {
+  background: transparent;
+}
+
+body.dark-mode .details-grid {
+  color: #f1f5f9;
+}
+
+body.dark-mode .tag {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* Issue 5: Mentor name/card in My Mentors section dark mode */
+body.dark-mode .mentor-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .mentor-name {
+  color: #f1f5f9;
+}
+
+body.dark-mode .mentor-role {
+  color: #94a3b8;
+}

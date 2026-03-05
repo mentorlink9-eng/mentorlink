@@ -9,6 +9,7 @@ import { studentAPI, connectionAPI, userAPI } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLayout } from '../../../contexts/LayoutContext';
 import PageSkeleton from '../../../components/ui/page-skeleton/PageSkeleton';
+import UserListModal from '../../../components/ui/user-list-modal/UserListModal';
 import './StudentProfile.css';
 
 const StudentProfile = () => {
@@ -21,6 +22,7 @@ const StudentProfile = () => {
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionsCount, setConnectionsCount] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -436,7 +438,12 @@ const StudentProfile = () => {
                 <h1 className="student-name-large">{student.user?.name || 'Student'}</h1>
                 <p className="student-headline">{student.roleStatus || 'Student'} · {student.experienceLevel || 'Beginner'}</p>
                 {student.user?.location && <p className="student-location">{student.user.location}</p>}
-                <p className="connections-text">{connectionsCount} connections</p>
+                <p
+                  className="connections-text connections-clickable"
+                  onClick={() => setModalOpen(true)}
+                >
+                  {connectionsCount} connections
+                </p>
               </div>
 
               <div className="profile-header-actions">
@@ -626,6 +633,12 @@ const StudentProfile = () => {
           setSelectedMentor(null);
         }}
         mentee={selectedMentor}
+      />
+      <UserListModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Connections"
+        fetchUsers={() => connectionAPI.getConnections().then(r => r.connections || [])}
       />
     </div>
   );

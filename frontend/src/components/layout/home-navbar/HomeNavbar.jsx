@@ -95,8 +95,9 @@ const HomeNavbar = () => {
 
   // Get user initials for avatar fallback
   const getInitials = () => {
-    if (user?.name) {
-      const parts = user.name.trim().split(/\s+/);
+    const nameStr = user?.name || user?.firstName || user?.username;
+    if (nameStr) {
+      const parts = nameStr.trim().split(/\s+/);
       if (parts.length >= 2) {
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
       }
@@ -105,7 +106,7 @@ const HomeNavbar = () => {
     if (user?.email) {
       return user.email[0].toUpperCase();
     }
-    return 'U';
+    return '?';
   };
 
   // Mobile menu navigation items
